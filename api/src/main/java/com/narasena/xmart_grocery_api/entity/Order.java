@@ -44,6 +44,9 @@ public class Order extends BaseEntity {
   @Column(name = "final_amount", nullable = false)
   private BigDecimal finalAmount;
 
+  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+  private Payment payment;
+
   // Getters and setters
   public UUID getId() {
     return id;
@@ -128,6 +131,13 @@ public class Order extends BaseEntity {
 
   public void setFinalAmount(BigDecimal finalAmount) {
     this.finalAmount = finalAmount;
+  }
+
+  public Payment getPayment() {
+    return payment;
+  }
+  public void setPayment(Payment payment) {
+    this.payment = payment;
   }
 
 
