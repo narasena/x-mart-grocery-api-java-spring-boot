@@ -2,17 +2,15 @@ package com.narasena.xmart_grocery_api.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "products")
-public class Product {
-    
+public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-    
+
     @Column(nullable = false, unique = true)
     private String name;
 
@@ -28,37 +26,19 @@ public class Product {
     @Column(nullable = false, unique = true)
     private String sku;
 
-    // Note: Commented out relationships until other entities are created
-    // @OneToOne
-    // @JoinColumn(name = "product_image_id")
-    // private ProductImage productImage;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private java.util.List<ProductImage> productImages;
 
-    // @ManyToOne
-    // @JoinColumn(name = "product_sub_category_id")
-    // private ProductSubCategory productSubCategory;
+    @ManyToOne
+    @JoinColumn(name = "product_sub_category_id")
+    private ProductSubCategory productSubCategory;
 
-    // @ManyToOne
-    // @JoinColumn(name = "product_brand_id")
-    // private ProductBrand productBrand;
-    
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @ManyToOne
+    @JoinColumn(name = "product_brand_id")
+    private ProductBrand productBrand;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @Column(name = "deleted_at", nullable = true)
-    private LocalDateTime deletedAt;
-    
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private java.util.List<ProductStock> productStocks;
     
     // Getters and setters
     public UUID getId() { return id; }
@@ -87,25 +67,18 @@ public class Product {
         this.sku = sku;
     }
     
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public java.util.List<ProductImage> getProductImages() { return productImages; }
+    public void setProductImages(java.util.List<ProductImage> productImages) { this.productImages = productImages; }
+    
+    public ProductSubCategory getProductSubCategory() { return productSubCategory; }
+    public void setProductSubCategory(ProductSubCategory productSubCategory) { this.productSubCategory = productSubCategory; }
+    
+    public ProductBrand getProductBrand() { return productBrand; }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setProductBrand(ProductBrand productBrand) {
+        this.productBrand = productBrand;
     }
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    public LocalDateTime getDeletedAt() {
-        return deletedAt;
-    }
-    public void setDeletedAt(LocalDateTime deletedAt) {
-        this.deletedAt = deletedAt;
-    }
+    
+    public java.util.List<ProductStock> getProductStocks() { return productStocks; }
+    public void setProductStocks(java.util.List<ProductStock> productStocks) { this.productStocks = productStocks; }
 }
