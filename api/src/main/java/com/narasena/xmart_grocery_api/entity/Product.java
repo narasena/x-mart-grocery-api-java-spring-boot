@@ -39,6 +39,15 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
     private java.util.List<ProductStock> productStocks;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private java.util.List<CartItem> cartItems;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private java.util.List<PromotionProduct> promotionProducts;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+    private java.util.List<OrderItem> orderItems;
     
     // Getters and setters
     public UUID getId() { return id; }
@@ -80,5 +89,20 @@ public class Product extends BaseEntity {
     }
     
     public java.util.List<ProductStock> getProductStocks() { return productStocks; }
-    public void setProductStocks(java.util.List<ProductStock> productStocks) { this.productStocks = productStocks; }
+
+    public void setProductStocks(java.util.List<ProductStock> productStocks) {
+        this.productStocks = productStocks;
+    }
+    
+    public java.util.List<CartItem> getCartItems() { return cartItems; }
+    public void setCartItems(java.util.List<CartItem> cartItems) { this.cartItems = cartItems; }
+    
+    public java.util.List<PromotionProduct> getPromotionProducts() { return promotionProducts; }
+
+    public void setPromotionProducts(java.util.List<PromotionProduct> promotionProducts) {
+        this.promotionProducts = promotionProducts;
+    }
+    
+    public java.util.List<OrderItem> getOrderItems() { return orderItems; }
+    public void setOrderItems(java.util.List<OrderItem> orderItems) { this.orderItems = orderItems; }
 }

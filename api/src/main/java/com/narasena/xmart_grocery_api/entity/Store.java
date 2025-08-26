@@ -31,8 +31,8 @@ public class Store extends BaseEntity {
   private String resourceId;
 
   @OneToOne
-  @JoinColumn(name = "address_id")
-  private Address address;
+  @JoinColumn(name = "store_address_id")
+  private Address storeAddress;
 
   @Column
   private String latitude;
@@ -48,6 +48,9 @@ public class Store extends BaseEntity {
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
   private java.util.List<Product> products;
+
+  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+  private java.util.List<Order> orders;
 
   // Getters and setters
   public UUID getId() {
@@ -94,12 +97,12 @@ public class Store extends BaseEntity {
   public void setResourceId(String resourceId) {
     this.resourceId = resourceId;
   }
-  public Address getAddress() {
-    return address;
+  public Address getStoreAddress() {
+    return storeAddress;
   }
 
-  public void setAddress(Address address) {
-    this.address = address;
+  public void setStoreAddress(Address storeAddress) {
+    this.storeAddress = storeAddress;
   }
 
   public String getLatitude() {
@@ -140,6 +143,14 @@ public class Store extends BaseEntity {
 
   public void setProducts(java.util.List<Product> products) {
     this.products = products;
+  }
+
+  public java.util.List<Order> getOrders() {
+    return orders;
+  }
+
+  public void setOrders(java.util.List<Order> orders) {
+    this.orders = orders;
   }
   
 }

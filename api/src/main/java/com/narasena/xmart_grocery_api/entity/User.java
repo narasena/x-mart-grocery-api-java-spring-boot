@@ -50,6 +50,15 @@ public class User extends BaseEntity {
   @Column
   private String resourceId;
 
+  @Column(name = "referral_code")
+  private String referralCode;
+
+  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+  private Cart cart;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private java.util.List<Order> orders;
+
   // Getters and setters
   public UUID getId() {
     return id;
