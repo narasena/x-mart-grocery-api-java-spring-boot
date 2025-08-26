@@ -1,7 +1,8 @@
 package com.narasena.xmart_grocery_api.entity;
 
 import java.util.UUID;
-
+import com.narasena.xmart_grocery_api.enums.Gender;
+import com.narasena.xmart_grocery_api.enums.UserRole;
 import jakarta.persistence.*;
 
 @Entity
@@ -32,11 +33,16 @@ public class User extends BaseEntity {
   @Column
   private String dateOfBirth;
 
+  @Enumerated(EnumType.STRING)
   @Column
-  private String gender;
+  private Gender gender;
+
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private UserRole role = UserRole.CUSTOMER;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-  private java.util.List<UserAddress> userAddresses;  
+  private java.util.List<Address> userAddresses;  
 
   @Column
   private String userImgUrl;
@@ -93,10 +99,10 @@ public class User extends BaseEntity {
   public void setDateOfBirth(String dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
   }
-  public String getGender() {
+  public Gender getGender() {
     return gender;
   }
-  public void setGender(String gender) {
+  public void setGender(Gender gender) {
     this.gender = gender;
   }
   public String getUserImgUrl() {

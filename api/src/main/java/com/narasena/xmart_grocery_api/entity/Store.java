@@ -20,6 +20,10 @@ public class Store extends BaseEntity {
   @Column(columnDefinition = "TEXT")
   private String description;
 
+  @OneToOne
+  @JoinColumn(name = "store_manager_id")
+  private User storeManager;
+
   @Column
   private String storeImgUrl;
 
@@ -27,8 +31,8 @@ public class Store extends BaseEntity {
   private String resourceId;
 
   @OneToOne
-  @JoinColumn(name = "store_address_id")
-  private StoreAddress storeAddress;
+  @JoinColumn(name = "address_id")
+  private Address address;
 
   @Column
   private String latitude;
@@ -90,12 +94,12 @@ public class Store extends BaseEntity {
   public void setResourceId(String resourceId) {
     this.resourceId = resourceId;
   }
-  public StoreAddress getStoreAddress() {
-    return storeAddress;
+  public Address getAddress() {
+    return address;
   }
 
-  public void setStoreAddress(StoreAddress storeAddress) {
-    this.storeAddress = storeAddress;
+  public void setAddress(Address address) {
+    this.address = address;
   }
 
   public String getLatitude() {
