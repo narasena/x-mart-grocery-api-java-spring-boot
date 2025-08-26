@@ -15,14 +15,14 @@ public class ProductImage extends BaseEntity {
   @JoinColumn(name = "product_id")
   private Product product;
 
-  @Column
+  @Column (name = "img_url")
   private String imgUrl;
 
   @Column
   private String resourceId; // Provider-specific ID for deletion
 
   @Column
-  private Boolean isMain;
+  private Boolean isMainImg = false;
 
   // Getters and setters
   public UUID getId() {

@@ -22,10 +22,10 @@ public class ProductBrand extends BaseEntity {
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  @Column
+  @Column(name = "img_url")
   private String brandImgUrl;  // Generic URL - works with any CDN
   
-  @Column
+  @Column(name = "resource_id")
   private String resourceId; // Provider-specific ID for deletion
 
   // Getters and setters

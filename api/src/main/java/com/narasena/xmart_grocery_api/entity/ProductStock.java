@@ -25,7 +25,7 @@ public class ProductStock extends BaseEntity {
   @Column(nullable = false)
   private Integer quantity;
   
-  @Column(nullable = false)
+  @Column(name = "min_stock_level", nullable = false)
   private Integer minStockLevel;
   
   
