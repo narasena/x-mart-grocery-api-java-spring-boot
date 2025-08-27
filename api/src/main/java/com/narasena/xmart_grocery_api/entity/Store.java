@@ -11,10 +11,10 @@ public class Store extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String slug;
 
   @Column(columnDefinition = "TEXT")
@@ -24,26 +24,26 @@ public class Store extends BaseEntity {
   @JoinColumn(name = "store_manager_id")
   private User storeManager;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String storeImgUrl;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String resourceId;
 
   @OneToOne
   @JoinColumn(name = "store_address_id")
   private Address storeAddress;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String latitude;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String longitude;
 
-  @Column( unique = true)
+  @Column(columnDefinition = "TEXT", unique = true)
   private String phoneNumber;
 
-  @Column(unique = true)
+  @Column(columnDefinition = "TEXT", unique = true)
   private String email;
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)

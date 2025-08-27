@@ -15,10 +15,10 @@ public class PaymentProof extends BaseEntity {
   @JoinColumn(name = "payment_id", nullable = false)
   private Payment payment;
 
-  @Column(name = "payment_proof_img_url", nullable = false)
+  @Column(columnDefinition = "TEXT", name = "payment_proof_img_url", nullable = false)
   private String paymentProofImgUrl;
 
-  @Column(name="resouce_id", nullable = false)
+  @Column(columnDefinition = "TEXT", name="resouce_id", nullable = false)
   private String resourceId;
 
   @Column(name = "is_verified", nullable = false)
@@ -31,7 +31,7 @@ public class PaymentProof extends BaseEntity {
   @Column(name = "verified_at", nullable = false)
   private LocalDateTime verifiedAt;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String notes;
 
   public UUID getId() {

@@ -13,19 +13,19 @@ public class ProductBrand extends BaseEntity {
   @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
   private java.util.List<Product> products;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String slug;
 
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  @Column(name = "img_url")
+  @Column(columnDefinition = "TEXT", name = "img_url")
   private String brandImgUrl;  // Generic URL - works with any CDN
   
-  @Column(name = "resource_id")
+  @Column(columnDefinition = "TEXT", name = "resource_id")
   private String resourceId; // Provider-specific ID for deletion
 
   // Getters and setters

@@ -15,10 +15,10 @@ public class ProductImage extends BaseEntity {
   @JoinColumn(name = "product_id")
   private Product product;
 
-  @Column (name = "img_url")
+  @Column(columnDefinition = "TEXT", name = "img_url")
   private String imgUrl;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String resourceId; // Provider-specific ID for deletion
 
   @Column

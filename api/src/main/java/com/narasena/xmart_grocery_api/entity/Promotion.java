@@ -15,7 +15,7 @@ public class Promotion extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String name;
     
     @Column(columnDefinition = "TEXT")
@@ -67,7 +67,7 @@ public class Promotion extends BaseEntity {
     private Integer perUserLimit;           // Uses per customer
     
     // Promo code
-    @Column(name = "promo_code", unique = true)
+    @Column(columnDefinition = "TEXT", name = "promo_code", unique = true)
     private String promoCode;               // Optional coupon code
     
    @OneToMany(mappedBy = "promotion")

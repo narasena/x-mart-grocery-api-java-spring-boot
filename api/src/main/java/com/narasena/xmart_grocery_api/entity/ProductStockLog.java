@@ -22,10 +22,10 @@ public class ProductStockLog extends BaseEntity {
   @Column(nullable = false)
   private ProductStockMovementType type;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String description;
 
-  @Column (name="type_reference")
+  @Column(columnDefinition = "TEXT", name="type_reference")
   private String typeReference;
 
   // Getters and setters

@@ -24,40 +24,40 @@ public class Address extends BaseEntity {
   @JoinColumn(name = "store_id")
   private Store store;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT",nullable = false)
   private String name;
 
-  @Column(name = "phone_number", nullable = false)
+  @Column(columnDefinition = "TEXT",name = "phone_number", nullable = false)
   private String phoneNumber;
 
-  @Column(name = "is_main_address", nullable = false)
+  @Column(columnDefinition = "TEXT",name = "is_main_address", nullable = false)
   private Boolean isMainAddress = false;
 
-  @Column(name = "street_address", nullable = false)
+  @Column(columnDefinition = "TEXT",name = "street_address", nullable = false)
   private String streetAddress;
 
-  @Column(name = "sub_district")
+  @Column(columnDefinition = "TEXT",name = "sub_district")
   private String subDistrict;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String district;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT",nullable = false)
   private String city;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT",nullable = false)
   private String province;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT",nullable = false)
   private String country;
 
-  @Column(name = "postal_code")
+  @Column(columnDefinition = "TEXT", name = "postal_code")
   private String postalCode;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String latitude;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String longitude;
 
   public User getUser() {

@@ -14,7 +14,7 @@ public class Voucher extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     
-    @Column(name = "voucher_code", nullable = false, unique = true)
+    @Column(columnDefinition = "TEXT", name = "voucher_code", nullable = false, unique = true)
     private String voucherCode;             // Unique code like "REF-ABC123"
     
     @ManyToOne
@@ -47,7 +47,7 @@ public class Voucher extends BaseEntity {
     private Order usedInOrder;              // Which order used this voucher
     
     // Source tracking
-    @Column(name = "source_type")
+    @Column(columnDefinition = "TEXT", name = "source_type")
     private String sourceType;              // "REFERRAL", "BIRTHDAY", "LOYALTY"
     
     @Column(name = "source_reference_id")

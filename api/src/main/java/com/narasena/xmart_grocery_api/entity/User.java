@@ -12,25 +12,25 @@ public class User extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String email;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT", nullable = false)
   private String password;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT", nullable = false)
   private String phoneNumber;
 
   @Column(nullable = false)
   private Boolean isVerified = false;
 
-  @Column(nullable = false)
+  @Column(columnDefinition = "TEXT", nullable = false)
   private String firstName;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String lastName;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String dateOfBirth;
 
   @Enumerated(EnumType.STRING)
@@ -44,13 +44,13 @@ public class User extends BaseEntity {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
   private java.util.List<Address> userAddresses;  
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String userImgUrl;
 
-  @Column
+  @Column(columnDefinition = "TEXT")
   private String resourceId;
 
-  @Column(name = "referral_code")
+  @Column(columnDefinition = "TEXT", name = "referral_code")
   private String referralCode;
 
   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)

@@ -11,10 +11,10 @@ public class Product extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
+    @Column(columnDefinition = "TEXT",nullable = false, unique = true)
     private String name;
 
-    @Column(nullable = false, unique = true)
+    @Column(columnDefinition = "TEXT",nullable = false, unique = true)
     private String slug;
     
     @Column(columnDefinition = "TEXT")
@@ -23,7 +23,7 @@ public class Product extends BaseEntity {
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    @Column(nullable = false, unique = true)
+    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
     private String sku;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)

@@ -13,10 +13,10 @@ public class ProductCategory extends BaseEntity {
   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
   private java.util.List<ProductSubCategory> subCategories;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String slug;
 
   @Column(columnDefinition = "TEXT")

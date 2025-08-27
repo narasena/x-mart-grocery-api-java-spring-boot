@@ -14,10 +14,10 @@ public class ProductSubCategory extends BaseEntity {
   @JoinColumn(name = "category_id")
   private ProductCategory category;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String name;
 
-  @Column(nullable = false, unique = true)
+  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
   private String slug;
 
   @Column(columnDefinition = "TEXT")
