@@ -83,4 +83,12 @@ public class Voucher extends BaseEntity {
     
     public String getSourceType() { return sourceType; }
     public void setSourceType(String sourceType) { this.sourceType = sourceType; }
+
+    public UUID getSourceReferenceId() {
+        return sourceReferenceId;
+    }
+
+    public void setSourceReferenceId(UUID sourceReferenceId) {
+        this.sourceReferenceId = sourceReferenceId;
+    }
 }

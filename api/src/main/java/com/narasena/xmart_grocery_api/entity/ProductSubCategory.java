@@ -23,7 +23,7 @@ public class ProductSubCategory extends BaseEntity {
   @Column(columnDefinition = "TEXT")
   private String description;
 
-  @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "productSubCategory", cascade = CascadeType.ALL)
   private java.util.List<Product> products;
 
     // Getters and setters
@@ -50,4 +50,12 @@ public class ProductSubCategory extends BaseEntity {
     
     public ProductCategory getCategory() { return category; }
     public void setCategory(ProductCategory category) { this.category = category; }
+
+    public java.util.List<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(java.util.List<Product> products) {
+        this.products = products;
+    }
 }

@@ -10,7 +10,7 @@ public class ProductBrand extends BaseEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID id;
 
-  @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)
+  @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
   private java.util.List<Product> products;
 
   @Column(nullable = false, unique = true)

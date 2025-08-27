@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.util.UUID;
 
+import com.narasena.xmart_grocery_api.enums.OrderStatusType;
+
 
 @Entity
 @Table(name = "order_status")
@@ -17,7 +19,7 @@ public class OrderStatus extends BaseEntity {
   private Order order;
 
   @Enumerated(EnumType.STRING)
-  private OrderStatus status;
+  private OrderStatusType status;
   
   // Getters and setters
   public UUID getId() {
@@ -36,11 +38,11 @@ public class OrderStatus extends BaseEntity {
     this.order = order;
   }
 
-  public OrderStatus getStatus() {
+  public OrderStatusType getStatus() {
     return status;
   }
 
-  public void setStatus(OrderStatus status) {
+  public void setStatus(OrderStatusType status) {
     this.status = status;
   }
 }

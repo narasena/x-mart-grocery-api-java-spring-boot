@@ -47,7 +47,7 @@ public class Store extends BaseEntity {
   private String email;
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
-  private java.util.List<Product> products;
+  private java.util.List<ProductStock> productStocks;
 
   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
   private java.util.List<Order> orders;
@@ -137,12 +137,12 @@ public class Store extends BaseEntity {
     this.email = email;
   }
 
-  public java.util.List<Product> getProducts() {
-    return products;
+  public java.util.List<ProductStock> getProductStocks() {
+    return productStocks;
   }
 
-  public void setProducts(java.util.List<Product> products) {
-    this.products = products;
+  public void setProductStocks(java.util.List<ProductStock> productStocks) {
+    this.productStocks = productStocks;
   }
 
   public java.util.List<Order> getOrders() {

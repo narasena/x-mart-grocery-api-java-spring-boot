@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 import java.util.UUID;
 
+import com.narasena.xmart_grocery_api.enums.PaymentStatusType;
+
 @Entity
 @Table(name = "payment_statuses")
 public class PaymentStatus extends BaseEntity {
@@ -17,6 +19,29 @@ public class PaymentStatus extends BaseEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
-  private PaymentStatus type;
-  
+  private PaymentStatusType status;
+
+  public UUID getId() {
+    return id;
+  }
+
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  public Payment getPayment() {
+    return payment;
+  }
+
+  public void setPayment(Payment payment) {
+    this.payment = payment;
+  }
+
+  public PaymentStatusType getStatus() {
+    return status;
+  }
+
+  public void setStatus(PaymentStatusType status) {
+    this.status = status;
+  }
 }

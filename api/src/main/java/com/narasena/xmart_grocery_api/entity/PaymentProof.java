@@ -33,4 +33,68 @@ public class PaymentProof extends BaseEntity {
 
   @Column
   private String notes;
+
+  public UUID getId() {
+    return id;
+  }
+
+  public void setId(UUID id) {
+    this.id = id;
+  }
+
+  public Payment getPayment() {
+    return payment;
+  }
+
+  public void setPayment(Payment payment) {
+    this.payment = payment;
+  }
+
+  public String getPaymentProofImgUrl() {
+    return paymentProofImgUrl;
+  }
+
+  public void setPaymentProofImgUrl(String paymentProofImgUrl) {
+    this.paymentProofImgUrl = paymentProofImgUrl;
+  }
+
+  public String getResourceId() {
+    return resourceId;
+  }
+
+  public void setResourceId(String resourceId) {
+    this.resourceId = resourceId;
+  }
+
+  public boolean isVerified() {
+    return isVerified;
+  }
+
+  public void setVerified(boolean verified) {
+    isVerified = verified;
+  }
+
+  public User getVerifiedBy() {
+    return verifiedBy;
+  }
+
+  public void setVerifiedBy(User verifiedBy) {
+    this.verifiedBy = verifiedBy;
+  }
+
+  public LocalDateTime getVerifiedAt() {
+    return verifiedAt;
+  }
+
+  public void setVerifiedAt(LocalDateTime verifiedAt) {
+    this.verifiedAt = verifiedAt;
+  }
+
+  public String getNotes() {
+    return notes;
+  }
+
+  public void setNotes(String notes) {
+    this.notes = notes;
+  }
 }

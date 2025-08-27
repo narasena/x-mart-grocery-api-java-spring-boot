@@ -55,4 +55,12 @@ public class ProductImage extends BaseEntity {
   public void setResourceId(String resourceId) {
     this.resourceId = resourceId;
   }
+
+  public Boolean getMainImg() {
+    return isMainImg;
+  }
+
+  public void setMainImg(Boolean mainImg) {
+    isMainImg = mainImg;
+  }
 }

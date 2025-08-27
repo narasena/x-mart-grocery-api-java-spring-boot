@@ -127,4 +127,43 @@ public class User extends BaseEntity {
     this.resourceId = resourceId;
   }
 
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
+    public java.util.List<Address> getUserAddresses() {
+        return userAddresses;
+    }
+
+    public void setUserAddresses(java.util.List<Address> userAddresses) {
+        this.userAddresses = userAddresses;
+    }
+
+    public String getReferralCode() {
+        return referralCode;
+    }
+
+    public void setReferralCode(String referralCode) {
+        this.referralCode = referralCode;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
+    }
+
+    public java.util.List<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(java.util.List<Order> orders) {
+        this.orders = orders;
+    }
 }

@@ -1,6 +1,6 @@
 package com.narasena.xmart_grocery_api.enums;
 
-public enum OrderStatus {
+public enum OrderStatusType {
   PLACED,
   SHIPPED,
   DELIVERED,
