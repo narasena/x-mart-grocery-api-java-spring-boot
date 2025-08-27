@@ -1,46 +1,36 @@
 package com.narasena.xmart_grocery_api.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
 import java.util.UUID;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "product_brands")
+@Data
 public class ProductBrand extends BaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
-  private java.util.List<Product> products;
+    @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
+    private java.util.List<Product> products;
 
-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
-  private String name;
+    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+    private String name;
 
-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
-  private String slug;
+    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+    private String slug;
 
-  @Column(columnDefinition = "TEXT")
-  private String description;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-  @Column(columnDefinition = "TEXT", name = "img_url")
-  private String brandImgUrl;  // Generic URL - works with any CDN
-  
-  @Column(columnDefinition = "TEXT", name = "resource_id")
-  private String resourceId; // Provider-specific ID for deletion
+    @Column(columnDefinition = "TEXT", name = "img_url")
+    private String brandImgUrl;  // Generic URL - works with any CDN
 
-  // Getters and setters
-  public UUID getId() { return id; }
-  public void setId(UUID id) { this.id = id; }
-  public String getName() { return name; }
-  public void setName(String name) { this.name = name; }
-  public String getSlug() { return slug; }
-  public void setSlug(String slug) { this.slug = slug; }
-  public String getDescription() { return description; }
-  public void setDescription(String description) { this.description = description; }
-  public String getImageUrl() { return brandImgUrl; }
-  public void setImageUrl(String imageUrl) { this.brandImgUrl = imageUrl; }
-  public String getResourceId() { return resourceId; }
-  public void setResourceId(String resourceId) { this.resourceId = resourceId; }
-  public java.util.List<Product> getProducts() { return products; }
-  public void setProducts(java.util.List<Product> products) { this.products = products; }
+    @Column(columnDefinition = "TEXT", name = "resource_id")
+    private String resourceId; // Provider-specific ID for deletion
+
 }

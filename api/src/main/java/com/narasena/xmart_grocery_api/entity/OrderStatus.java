@@ -1,48 +1,27 @@
 package com.narasena.xmart_grocery_api.entity;
 
+import com.narasena.xmart_grocery_api.enums.OrderStatusType;
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.util.UUID;
 
-import com.narasena.xmart_grocery_api.enums.OrderStatusType;
 
-
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(name = "order_status")
+@Data
 public class OrderStatus extends BaseEntity {
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  @ManyToOne
-  @JoinColumn(name = "order_id", nullable = false)
-  private Order order;
+    @ManyToOne
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 
-  @Enumerated(EnumType.STRING)
-  private OrderStatusType status;
-  
-  // Getters and setters
-  public UUID getId() {
-    return id;
-  }
+    @Enumerated(EnumType.STRING)
+    private OrderStatusType status;
 
-  public void setId(UUID id) {
-    this.id = id;
-  }
-
-  public Order getOrder() {
-    return order;
-  }
-
-  public void setOrder(Order order) {
-    this.order = order;
-  }
-
-  public OrderStatusType getStatus() {
-    return status;
-  }
-
-  public void setStatus(OrderStatusType status) {
-    this.status = status;
-  }
 }
