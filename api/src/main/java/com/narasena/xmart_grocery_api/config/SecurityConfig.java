@@ -11,12 +11,11 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http
-      .authorizeHttpRequests(auth -> auth
-        .requestMatchers("/graphql", "/graphiql").authenticated()
-        .anyRequest().permitAll()
-      )
-      .httpBasic(basic -> {})
-      .csrf(csrf -> csrf.disable())
-      .build();
+        .authorizeHttpRequests(auth -> auth
+            .anyRequest().permitAll())
+        .httpBasic(basic -> {
+        })
+        .csrf(csrf -> csrf.disable())
+        .build();
   }
 }
