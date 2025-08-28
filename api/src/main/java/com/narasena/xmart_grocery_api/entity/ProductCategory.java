@@ -22,8 +22,17 @@ public class ProductCategory extends BaseEntity {
 
     @Column(columnDefinition = "TEXT", nullable = false, unique = true)
     private String slug;
-
+    
     @Column(columnDefinition = "TEXT")
     private String description;
+    
+    @PrePersist
+    public void generateSlug() {
+        this.slug = generateSlugFromNameandId(this.name, this.id);
+    }
 
+    private String generateSlugFromNameandId(String name, Integer id) {
+        String baseSlug = name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        return id != null ? baseSlug + "-" + id : baseSlug;
+    }
 }

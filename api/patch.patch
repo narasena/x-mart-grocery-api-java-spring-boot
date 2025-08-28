@@ -1,0 +1,5911 @@
+From 5aac5781fe81f093b69a33ffc2540aebae45efca Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Tue, 26 Aug 2025 13:12:16 +0700
+Subject: [PATCH 01/10] feat: users and stores table jpa
+
+---
+ .../entity/BaseAddressEntity.java             | 118 +++++++++++++++
+ .../entity/ProductBrand.java                  |   4 +-
+ .../entity/ProductImage.java                  |   4 +-
+ .../entity/ProductStock.java                  |   2 +-
+ .../xmart_grocery_api/entity/Store.java       | 141 ++++++++++++++++++
+ .../entity/StoreAddress.java                  |  11 ++
+ .../xmart_grocery_api/entity/User.java        | 115 ++++++++++++++
+ .../xmart_grocery_api/entity/UserAddress.java |  53 +++++++
+ 8 files changed, 443 insertions(+), 5 deletions(-)
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java
+new file mode 100644
+index 0000000..59f6705
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java
+@@ -0,0 +1,118 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import java.util.UUID;
++
++import jakarta.persistence.*;
++
++@MappedSuperclass
++public class BaseAddressEntity extends BaseEntity {
++    @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @Column(name="street_address", nullable = false)
++  private String streetAddress;  // alamat
++
++  @Column(name = "sub_district")
++  private String subDistrict;    // kelurahan
++
++  @Column
++  private String district;       // kecamatan
++
++  @Column(nullable = false)
++  private String city;           // kabupaten/kota
++
++  @Column(nullable = false)
++  private String province;       // provinsi
++
++  @Column(nullable = false)
++  private String country;        // negara
++
++  @Column(name = "postal_code")
++  private String postalCode;     // kode pos
++
++  @Column
++  private String latitude;
++
++  @Column
++  private String longitude;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public String getStreetAddress() {
++    return streetAddress;
++  }
++
++  public void setStreetAddress(String streetAddress) {
++    this.streetAddress = streetAddress;
++  }
++
++  public String getSubDistrict() {
++    return subDistrict;
++  }
++
++  public void setSubDistrict(String subDistrict) {
++    this.subDistrict = subDistrict;
++  }
++
++  public String getDistrict() {
++    return district;
++  }
++
++  public void setDistrict(String district) {
++    this.district = district;
++  }
++
++  public String getCity() {
++    return city;
++  }
++
++  public void setCity(String city) {
++    this.city = city;
++  }
++
++  public String getProvince() {
++    return province;
++  }
++  public void setProvince(String province) {
++    this.province = province;
++  }
++
++  public String getCountry() {
++    return country;
++  }
++
++  public void setCountry(String country) {
++    this.country = country;
++  }
++
++  public String getPostalCode() {
++    return postalCode;
++  }
++
++  public void setPostalCode(String postalCode) {
++    this.postalCode = postalCode;
++  }
++
++  public String getLatitude() {
++    return latitude;
++  }
++  public void setLatitude(String latitude) {
++    this.latitude = latitude;
++  }
++
++  public String getLongitude() {
++    return longitude;
++  }
++
++  public void setLongitude(String longitude) {
++    this.longitude = longitude;
++  }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+index 62d1b02..370851c 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+@@ -22,10 +22,10 @@ public class ProductBrand extends BaseEntity {
+   @Column(columnDefinition = "TEXT")
+   private String description;
+ 
+-  @Column
++  @Column(name = "img_url")
+   private String brandImgUrl;  // Generic URL - works with any CDN
+   
+-  @Column
++  @Column(name = "resource_id")
+   private String resourceId; // Provider-specific ID for deletion
+ 
+   // Getters and setters
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+index c2c9d40..2ffbb12 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+@@ -15,14 +15,14 @@ public class ProductImage extends BaseEntity {
+   @JoinColumn(name = "product_id")
+   private Product product;
+ 
+-  @Column
++  @Column (name = "img_url")
+   private String imgUrl;
+ 
+   @Column
+   private String resourceId; // Provider-specific ID for deletion
+ 
+   @Column
+-  private Boolean isMain;
++  private Boolean isMainImg = false;
+ 
+   // Getters and setters
+   public UUID getId() {
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java
+index 198af32..761294c 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java
+@@ -25,7 +25,7 @@ public class ProductStock extends BaseEntity {
+   @Column(nullable = false)
+   private Integer quantity;
+   
+-  @Column(nullable = false)
++  @Column(name = "min_stock_level", nullable = false)
+   private Integer minStockLevel;
+   
+   
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+new file mode 100644
+index 0000000..2dd76cd
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+@@ -0,0 +1,141 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++
++import java.util.UUID;
++
++@Entity
++@Table(name = "stores")
++public class Store extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @Column(nullable = false, unique = true)
++  private String name;
++
++  @Column(nullable = false, unique = true)
++  private String slug;
++
++  @Column(columnDefinition = "TEXT")
++  private String description;
++
++  @Column
++  private String storeImgUrl;
++
++  @Column
++  private String resourceId;
++
++  @OneToOne
++  @JoinColumn(name = "store_address_id")
++  private StoreAddress storeAddress;
++
++  @Column
++  private String latitude;
++
++  @Column
++  private String longitude;
++
++  @Column( unique = true)
++  private String phoneNumber;
++
++  @Column(unique = true)
++  private String email;
++
++  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
++  private java.util.List<Product> products;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++  public String getName() {
++    return name;
++  }
++
++  public void setName(String name) {
++    this.name = name;
++  }
++
++  public String getSlug() {
++    return slug;
++  }
++
++  public void setSlug(String slug) {
++    this.slug = slug;
++  }
++
++  public String getDescription() {
++    return description;
++  }
++
++  public void setDescription(String description) {
++    this.description = description;
++  } 
++  public String getStoreImgUrl() {
++    return storeImgUrl;
++  }
++
++  public void setStoreImgUrl(String storeImgUrl) {
++    this.storeImgUrl = storeImgUrl;
++  }
++  public String getResourceId() {
++    return resourceId;
++  }
++
++  public void setResourceId(String resourceId) {
++    this.resourceId = resourceId;
++  }
++  public StoreAddress getStoreAddress() {
++    return storeAddress;
++  }
++
++  public void setStoreAddress(StoreAddress storeAddress) {
++    this.storeAddress = storeAddress;
++  }
++
++  public String getLatitude() {
++    return latitude;
++  }
++
++  public void setLatitude(String latitude) {
++    this.latitude = latitude;
++  }
++
++  public String getLongitude() {
++    return longitude;
++  }
++
++  public void setLongitude(String longitude) {
++    this.longitude = longitude;
++  }
++
++  public String getPhoneNumber() {
++    return phoneNumber;
++  }
++
++  public void setPhoneNumber(String phoneNumber) {
++    this.phoneNumber = phoneNumber;
++  }
++
++  public String getEmail() {
++    return email;
++  }
++
++  public void setEmail(String email) {
++    this.email = email;
++  }
++
++  public java.util.List<Product> getProducts() {
++    return products;
++  }
++
++  public void setProducts(java.util.List<Product> products) {
++    this.products = products;
++  }
++  
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java
+new file mode 100644
+index 0000000..a719a74
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java
+@@ -0,0 +1,11 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++
++@Entity
++@Table(name = "store_addresses")
++public class StoreAddress extends BaseAddressEntity {
++  @OneToOne
++  @JoinColumn(name = "store_id")
++  private Store store;
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+new file mode 100644
+index 0000000..81c83c2
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+@@ -0,0 +1,115 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import java.util.UUID;
++
++import jakarta.persistence.*;
++
++@Entity
++@Table(name = "users")
++public class User extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @Column(nullable = false, unique = true)
++  private String email;
++
++  @Column(nullable = false)
++  private String password;
++
++  @Column(nullable = false)
++  private String phoneNumber;
++
++  @Column(nullable = false)
++  private Boolean isVerified = false;
++
++  @Column(nullable = false)
++  private String firstName;
++
++  @Column
++  private String lastName;
++
++  @Column
++  private String dateOfBirth;
++
++  @Column
++  private String gender;
++
++  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
++  private java.util.List<UserAddress> userAddresses;  
++
++  @Column
++  private String userImgUrl;
++
++  @Column
++  private String resourceId;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++  public void setId(UUID id) {
++    this.id = id;
++  }
++  public String getEmail() {
++    return email;
++  }
++  public void setEmail(String email) {
++    this.email = email;
++  }
++  public String getPassword() {
++    return password;
++  }
++  public void setPassword(String password) {
++    this.password = password;
++  }
++  public String getPhoneNumber() {
++    return phoneNumber;
++  }
++  public void setPhoneNumber(String phoneNumber) {
++    this.phoneNumber = phoneNumber;
++  }
++  public Boolean getIsVerified() {
++    return isVerified;
++  }
++  public void setIsVerified(Boolean isVerified) {
++    this.isVerified = isVerified;
++  }
++  public String getFirstName() {
++    return firstName;
++  }
++  public void setFirstName(String firstName) {
++    this.firstName = firstName;
++  }
++  public String getLastName() {
++    return lastName;
++  }
++  public void setLastName(String lastName) {
++    this.lastName = lastName;
++  }
++  public String getDateOfBirth() {
++    return dateOfBirth;
++  }
++  public void setDateOfBirth(String dateOfBirth) {
++    this.dateOfBirth = dateOfBirth;
++  }
++  public String getGender() {
++    return gender;
++  }
++  public void setGender(String gender) {
++    this.gender = gender;
++  }
++  public String getUserImgUrl() {
++    return userImgUrl;
++  }
++  public void setUserImgUrl(String userImgUrl) {
++    this.userImgUrl = userImgUrl;
++  }
++  public String getResourceId() {
++    return resourceId;
++  }
++  public void setResourceId(String resourceId) {
++    this.resourceId = resourceId;
++  }
++
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java
+new file mode 100644
+index 0000000..bde60c8
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java
+@@ -0,0 +1,53 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++
++@Entity
++@Table(name = "user_addresses")
++public class UserAddress extends BaseAddressEntity {
++
++  @ManyToOne
++  @JoinColumn(name = "user_id")
++  private User user;
++
++  @Column(nullable = false)
++  private String name;
++
++  @Column(name = "phone_number", nullable = false)
++  private String phoneNumber;
++
++  @Column(name = "is_main_address", nullable = false)
++  private Boolean isMainAddress = false; // Java-level default
++
++  public User getUser() {
++    return user;
++  }
++
++  public void setUser(User user) {
++    this.user = user;
++  }
++
++  public String getName() {
++    return name;
++  }
++
++  public void setName(String name) {
++    this.name = name;
++  }
++
++  public String getPhoneNumber() {
++    return phoneNumber;
++  }
++
++  public void setPhoneNumber(String phoneNumber) {
++    this.phoneNumber = phoneNumber;
++  }
++
++  public Boolean getIsMainAddress() {
++    return isMainAddress;
++  }
++
++  public void setIsMainAddress(Boolean isMainAddress) {
++    this.isMainAddress = isMainAddress;
++  }
++}
+-- 
+2.43.0
+
+
+From c22a99972f65ba884239d601895d038ec9e7403a Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Tue, 26 Aug 2025 13:55:09 +0700
+Subject: [PATCH 02/10] feat: fixes address and users, add product stock log
+
+---
+ .../xmart_grocery_api/entity/Address.java     | 116 +++++++++++++++++
+ .../entity/BaseAddressEntity.java             | 118 ------------------
+ .../entity/ProductStockLog.java               |  77 ++++++++++++
+ .../xmart_grocery_api/entity/Store.java       |  16 ++-
+ .../entity/StoreAddress.java                  |  11 --
+ .../xmart_grocery_api/entity/User.java        |  16 ++-
+ .../xmart_grocery_api/entity/UserAddress.java |  53 --------
+ .../xmart_grocery_api/enums/AddressType.java  |  10 ++
+ .../xmart_grocery_api/enums/Gender.java       |   8 ++
+ .../enums/ProductStockMovementType.java       |  19 +++
+ .../xmart_grocery_api/enums/UserRole.java     |   8 ++
+ 11 files changed, 259 insertions(+), 193 deletions(-)
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+ delete mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
+ delete mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java
+ delete mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/AddressType.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/Gender.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/ProductStockMovementType.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/UserRole.java
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+new file mode 100644
+index 0000000..b03ad65
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+@@ -0,0 +1,116 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++import java.util.UUID;
++import com.narasena.xmart_grocery_api.enums.AddressType;
++
++@Entity
++@Table(name = "addresses")
++public class Address extends BaseEntity {
++  
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @Enumerated(EnumType.STRING)
++  @Column(nullable = false)
++  private AddressType type;
++
++  @ManyToOne
++  @JoinColumn(name = "user_id")
++  private User user;
++
++  @ManyToOne
++  @JoinColumn(name = "store_id")
++  private Store store;
++
++  @Column(nullable = false)
++  private String name;
++
++  @Column(name = "phone_number", nullable = false)
++  private String phoneNumber;
++
++  @Column(name = "is_main_address", nullable = false)
++  private Boolean isMainAddress = false;
++
++  @Column(name = "street_address", nullable = false)
++  private String streetAddress;
++
++  @Column(name = "sub_district")
++  private String subDistrict;
++
++  @Column
++  private String district;
++
++  @Column(nullable = false)
++  private String city;
++
++  @Column(nullable = false)
++  private String province;
++
++  @Column(nullable = false)
++  private String country;
++
++  @Column(name = "postal_code")
++  private String postalCode;
++
++  @Column
++  private String latitude;
++
++  @Column
++  private String longitude;
++
++  public User getUser() {
++    return user;
++  }
++
++  public void setUser(User user) {
++    this.user = user;
++  }
++
++  public String getName() {
++    return name;
++  }
++
++  public void setName(String name) {
++    this.name = name;
++  }
++
++  public String getPhoneNumber() {
++    return phoneNumber;
++  }
++
++  public void setPhoneNumber(String phoneNumber) {
++    this.phoneNumber = phoneNumber;
++  }
++
++  public Boolean getIsMainAddress() {
++    return isMainAddress;
++  }
++
++  public void setIsMainAddress(Boolean isMainAddress) {
++    this.isMainAddress = isMainAddress;
++  }
++
++  // Getters and setters for new fields
++  public UUID getId() { return id; }
++  public void setId(UUID id) { this.id = id; }
++  
++  public AddressType getType() { return type; }
++  public void setType(AddressType type) { this.type = type; }
++  
++  public Store getStore() { return store; }
++  public void setStore(Store store) { this.store = store; }
++  
++  public String getStreetAddress() { return streetAddress; }
++  public void setStreetAddress(String streetAddress) { this.streetAddress = streetAddress; }
++  
++  public String getCity() { return city; }
++  public void setCity(String city) { this.city = city; }
++  
++  public String getProvince() { return province; }
++  public void setProvince(String province) { this.province = province; }
++  
++  public String getCountry() { return country; }
++  public void setCountry(String country) { this.country = country; }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java
+deleted file mode 100644
+index 59f6705..0000000
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseAddressEntity.java
++++ /dev/null
+@@ -1,118 +0,0 @@
+-package com.narasena.xmart_grocery_api.entity;
+-
+-import java.util.UUID;
+-
+-import jakarta.persistence.*;
+-
+-@MappedSuperclass
+-public class BaseAddressEntity extends BaseEntity {
+-    @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @Column(name="street_address", nullable = false)
+-  private String streetAddress;  // alamat
+-
+-  @Column(name = "sub_district")
+-  private String subDistrict;    // kelurahan
+-
+-  @Column
+-  private String district;       // kecamatan
+-
+-  @Column(nullable = false)
+-  private String city;           // kabupaten/kota
+-
+-  @Column(nullable = false)
+-  private String province;       // provinsi
+-
+-  @Column(nullable = false)
+-  private String country;        // negara
+-
+-  @Column(name = "postal_code")
+-  private String postalCode;     // kode pos
+-
+-  @Column
+-  private String latitude;
+-
+-  @Column
+-  private String longitude;
+-
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-
+-  public String getStreetAddress() {
+-    return streetAddress;
+-  }
+-
+-  public void setStreetAddress(String streetAddress) {
+-    this.streetAddress = streetAddress;
+-  }
+-
+-  public String getSubDistrict() {
+-    return subDistrict;
+-  }
+-
+-  public void setSubDistrict(String subDistrict) {
+-    this.subDistrict = subDistrict;
+-  }
+-
+-  public String getDistrict() {
+-    return district;
+-  }
+-
+-  public void setDistrict(String district) {
+-    this.district = district;
+-  }
+-
+-  public String getCity() {
+-    return city;
+-  }
+-
+-  public void setCity(String city) {
+-    this.city = city;
+-  }
+-
+-  public String getProvince() {
+-    return province;
+-  }
+-  public void setProvince(String province) {
+-    this.province = province;
+-  }
+-
+-  public String getCountry() {
+-    return country;
+-  }
+-
+-  public void setCountry(String country) {
+-    this.country = country;
+-  }
+-
+-  public String getPostalCode() {
+-    return postalCode;
+-  }
+-
+-  public void setPostalCode(String postalCode) {
+-    this.postalCode = postalCode;
+-  }
+-
+-  public String getLatitude() {
+-    return latitude;
+-  }
+-  public void setLatitude(String latitude) {
+-    this.latitude = latitude;
+-  }
+-
+-  public String getLongitude() {
+-    return longitude;
+-  }
+-
+-  public void setLongitude(String longitude) {
+-    this.longitude = longitude;
+-  }
+-}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
+new file mode 100644
+index 0000000..2f1fbf7
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
+@@ -0,0 +1,77 @@
++package com.narasena.xmart_grocery_api.entity;
++import java.util.UUID;
++
++import com.narasena.xmart_grocery_api.enums.ProductStockMovementType;
++
++import jakarta.persistence.*;
++
++@Entity
++@Table(name = "product_stock_history")
++public class ProductStockLog extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++  @ManyToOne
++  @JoinColumn(name = "product_stock_id", nullable = false)
++  private ProductStock productStock;
++
++  @Column(nullable = false)
++  private Integer quantity;
++
++  @Enumerated(EnumType.STRING)
++  @Column(nullable = false)
++  private ProductStockMovementType type;
++
++  @Column
++  private String description;
++
++  @Column (name="type_reference")
++  private String typeReference;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public ProductStock getProductStock() {
++    return productStock;
++  }
++
++  public void setProductStock(ProductStock productStock) {
++    this.productStock = productStock;
++  }
++  public Integer getQuantity() {
++    return quantity;
++  }
++
++  public void setQuantity(Integer quantity) {
++    this.quantity = quantity;
++  }
++
++  public ProductStockMovementType getType() {
++    return type;
++  }
++
++  public void setType(ProductStockMovementType type) {
++    this.type = type;
++  }
++
++  public String getDescription() {
++    return description;
++  }
++
++  public void setDescription(String description) {
++    this.description = description;
++  }
++  public String getTypeReference() {
++    return typeReference;
++  }
++
++  public void setTypeReference(String typeReference) {
++    this.typeReference = typeReference;
++  }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+index 2dd76cd..df042ea 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+@@ -20,6 +20,10 @@ public class Store extends BaseEntity {
+   @Column(columnDefinition = "TEXT")
+   private String description;
+ 
++  @OneToOne
++  @JoinColumn(name = "store_manager_id")
++  private User storeManager;
++
+   @Column
+   private String storeImgUrl;
+ 
+@@ -27,8 +31,8 @@ public class Store extends BaseEntity {
+   private String resourceId;
+ 
+   @OneToOne
+-  @JoinColumn(name = "store_address_id")
+-  private StoreAddress storeAddress;
++  @JoinColumn(name = "address_id")
++  private Address address;
+ 
+   @Column
+   private String latitude;
+@@ -90,12 +94,12 @@ public class Store extends BaseEntity {
+   public void setResourceId(String resourceId) {
+     this.resourceId = resourceId;
+   }
+-  public StoreAddress getStoreAddress() {
+-    return storeAddress;
++  public Address getAddress() {
++    return address;
+   }
+ 
+-  public void setStoreAddress(StoreAddress storeAddress) {
+-    this.storeAddress = storeAddress;
++  public void setAddress(Address address) {
++    this.address = address;
+   }
+ 
+   public String getLatitude() {
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java
+deleted file mode 100644
+index a719a74..0000000
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/StoreAddress.java
++++ /dev/null
+@@ -1,11 +0,0 @@
+-package com.narasena.xmart_grocery_api.entity;
+-
+-import jakarta.persistence.*;
+-
+-@Entity
+-@Table(name = "store_addresses")
+-public class StoreAddress extends BaseAddressEntity {
+-  @OneToOne
+-  @JoinColumn(name = "store_id")
+-  private Store store;
+-}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+index 81c83c2..61dc068 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+@@ -1,7 +1,8 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import java.util.UUID;
+-
++import com.narasena.xmart_grocery_api.enums.Gender;
++import com.narasena.xmart_grocery_api.enums.UserRole;
+ import jakarta.persistence.*;
+ 
+ @Entity
+@@ -32,11 +33,16 @@ public class User extends BaseEntity {
+   @Column
+   private String dateOfBirth;
+ 
++  @Enumerated(EnumType.STRING)
+   @Column
+-  private String gender;
++  private Gender gender;
++
++  @Enumerated(EnumType.STRING)
++  @Column(nullable = false)
++  private UserRole role = UserRole.CUSTOMER;
+ 
+   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+-  private java.util.List<UserAddress> userAddresses;  
++  private java.util.List<Address> userAddresses;  
+ 
+   @Column
+   private String userImgUrl;
+@@ -93,10 +99,10 @@ public class User extends BaseEntity {
+   public void setDateOfBirth(String dateOfBirth) {
+     this.dateOfBirth = dateOfBirth;
+   }
+-  public String getGender() {
++  public Gender getGender() {
+     return gender;
+   }
+-  public void setGender(String gender) {
++  public void setGender(Gender gender) {
+     this.gender = gender;
+   }
+   public String getUserImgUrl() {
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java
+deleted file mode 100644
+index bde60c8..0000000
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserAddress.java
++++ /dev/null
+@@ -1,53 +0,0 @@
+-package com.narasena.xmart_grocery_api.entity;
+-
+-import jakarta.persistence.*;
+-
+-@Entity
+-@Table(name = "user_addresses")
+-public class UserAddress extends BaseAddressEntity {
+-
+-  @ManyToOne
+-  @JoinColumn(name = "user_id")
+-  private User user;
+-
+-  @Column(nullable = false)
+-  private String name;
+-
+-  @Column(name = "phone_number", nullable = false)
+-  private String phoneNumber;
+-
+-  @Column(name = "is_main_address", nullable = false)
+-  private Boolean isMainAddress = false; // Java-level default
+-
+-  public User getUser() {
+-    return user;
+-  }
+-
+-  public void setUser(User user) {
+-    this.user = user;
+-  }
+-
+-  public String getName() {
+-    return name;
+-  }
+-
+-  public void setName(String name) {
+-    this.name = name;
+-  }
+-
+-  public String getPhoneNumber() {
+-    return phoneNumber;
+-  }
+-
+-  public void setPhoneNumber(String phoneNumber) {
+-    this.phoneNumber = phoneNumber;
+-  }
+-
+-  public Boolean getIsMainAddress() {
+-    return isMainAddress;
+-  }
+-
+-  public void setIsMainAddress(Boolean isMainAddress) {
+-    this.isMainAddress = isMainAddress;
+-  }
+-}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/AddressType.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/AddressType.java
+new file mode 100644
+index 0000000..47116a2
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/AddressType.java
+@@ -0,0 +1,10 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum AddressType {
++    USER_HOME,
++    USER_WORK,
++    USER_OTHER,
++    STORE_LOCATION,
++    WAREHOUSE,
++    PICKUP_POINT
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/Gender.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/Gender.java
+new file mode 100644
+index 0000000..1d10a9e
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/Gender.java
+@@ -0,0 +1,8 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum Gender {
++    MALE,
++    FEMALE,
++    OTHER,
++    PREFER_NOT_TO_SAY
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/ProductStockMovementType.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/ProductStockMovementType.java
+new file mode 100644
+index 0000000..3a8fc10
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/ProductStockMovementType.java
+@@ -0,0 +1,19 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum ProductStockMovementType {
++    // Inbound movements (increase stock)
++    PURCHASE,           // Receiving from suppliers
++    TRANSFER_IN,        // From other stores/warehouses
++    RETURN_FROM_CUSTOMER, // Customer returns
++    ADJUSTMENT_IN,      // Manual increase (found inventory)
++    
++    // Outbound movements (decrease stock)
++    SALE,              // Customer purchases
++    TRANSFER_OUT,      // To other stores/warehouses
++    EXPIRED,           // Expired products removal
++    DAMAGED,           // Damaged goods write-off
++    THEFT,             // Shrinkage due to theft
++    ADJUSTMENT_OUT,    // Manual decrease (lost inventory)
++    PROMOTION_LOSS,    // Free samples, promotions
++    WASTE             // Spoiled/unsellable items
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/UserRole.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/UserRole.java
+new file mode 100644
+index 0000000..644b375
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/UserRole.java
+@@ -0,0 +1,8 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum UserRole {
++    CUSTOMER,
++    STORE_MANAGER,
++    ADMIN,
++    SUPER_ADMIN
++}
+\ No newline at end of file
+-- 
+2.43.0
+
+
+From 906150b5f6ebc34a0722790557de0b322ff3a04b Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Tue, 26 Aug 2025 14:10:09 +0700
+Subject: [PATCH 03/10] feat: cart and cart items entities
+
+---
+ .../xmart_grocery_api/entity/Cart.java        | 30 +++++++++++
+ .../xmart_grocery_api/entity/CartItem.java    | 52 +++++++++++++++++++
+ .../enums/CartItemStatus.java                 |  7 +++
+ 3 files changed, 89 insertions(+)
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/CartItemStatus.java
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java
+new file mode 100644
+index 0000000..1f8376a
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java
+@@ -0,0 +1,30 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++import java.util.UUID;
++
++@Entity
++@Table(name = "carts")
++public class Cart extends BaseEntity {
++    
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++    
++    @OneToOne
++    @JoinColumn(name = "user_id", nullable = false, unique = true)
++    private User user;
++    
++    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
++    private java.util.List<CartItem> cartItems;
++    
++    // Getters and setters
++    public UUID getId() { return id; }
++    public void setId(UUID id) { this.id = id; }
++    
++    public User getUser() { return user; }
++    public void setUser(User user) { this.user = user; }
++    
++    public java.util.List<CartItem> getCartItems() { return cartItems; }
++    public void setCartItems(java.util.List<CartItem> cartItems) { this.cartItems = cartItems; }
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java
+new file mode 100644
+index 0000000..3c77678
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java
+@@ -0,0 +1,52 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++import java.util.UUID;
++import com.narasena.xmart_grocery_api.enums.CartItemStatus;
++
++@Entity
++@Table(name = "cart_items")
++public class CartItem extends BaseEntity {
++    
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++    
++    @ManyToOne
++    @JoinColumn(name = "cart_id", nullable = false)
++    private Cart cart;
++    
++    @ManyToOne
++    @JoinColumn(name = "product_id", nullable = false)
++    private Product product;
++    
++    @ManyToOne
++    @JoinColumn(name = "store_id", nullable = false)
++    private Store store;
++    
++    @Column(nullable = false)
++    private Integer quantity;
++    
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private CartItemStatus status = CartItemStatus.ACTIVE;
++    
++    // Getters and setters
++    public UUID getId() { return id; }
++    public void setId(UUID id) { this.id = id; }
++    
++    public Cart getCart() { return cart; }
++    public void setCart(Cart cart) { this.cart = cart; }
++    
++    public Product getProduct() { return product; }
++    public void setProduct(Product product) { this.product = product; }
++    
++    public Store getStore() { return store; }
++    public void setStore(Store store) { this.store = store; }
++    
++    public Integer getQuantity() { return quantity; }
++    public void setQuantity(Integer quantity) { this.quantity = quantity; }
++    
++    public CartItemStatus getStatus() { return status; }
++    public void setStatus(CartItemStatus status) { this.status = status; }
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/CartItemStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/CartItemStatus.java
+new file mode 100644
+index 0000000..e5d14c0
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/CartItemStatus.java
+@@ -0,0 +1,7 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum CartItemStatus {
++    ACTIVE,
++    ORDERED,
++    REMOVED
++}
+\ No newline at end of file
+-- 
+2.43.0
+
+
+From cc35ff6ca9f08b01f12feb04dfbd36f792b3f600 Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Tue, 26 Aug 2025 16:33:33 +0700
+Subject: [PATCH 04/10] feat: promotion, user referral, and order entities
+
+---
+ .../xmart_grocery_api/entity/Order.java       | 134 ++++++++++++++++++
+ .../xmart_grocery_api/entity/OrderItem.java   | 101 +++++++++++++
+ .../xmart_grocery_api/entity/OrderStatus.java |  46 ++++++
+ .../xmart_grocery_api/entity/Product.java     |  26 +++-
+ .../xmart_grocery_api/entity/Promotion.java   | 116 +++++++++++++++
+ .../entity/PromotionProduct.java              |  40 ++++++
+ .../entity/PromotionStore.java                |  45 ++++++
+ .../xmart_grocery_api/entity/Store.java       |  23 ++-
+ .../xmart_grocery_api/entity/User.java        |   9 ++
+ .../entity/UserReferral.java                  |  40 ++++++
+ .../xmart_grocery_api/entity/Voucher.java     |  86 +++++++++++
+ .../xmart_grocery_api/enums/OrderStatus.java  |   8 ++
+ .../enums/PromotionStatus.java                |   9 ++
+ .../enums/PromotionType.java                  |  12 ++
+ .../enums/VoucherStatus.java                  |   9 ++
+ 15 files changed, 697 insertions(+), 7 deletions(-)
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatus.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionStatus.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionType.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/VoucherStatus.java
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
+new file mode 100644
+index 0000000..7f079fb
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
+@@ -0,0 +1,134 @@
++package com.narasena.xmart_grocery_api.entity;
++import jakarta.persistence.*;
++import java.util.UUID;
++import java.math.BigDecimal;
++
++@Entity
++@Table(name = "orders")
++public class Order extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @ManyToOne
++  @JoinColumn(name = "user_id", nullable = false)
++  private User user;
++
++  @ManyToOne
++  @JoinColumn(name = "cart_id", nullable = false)
++  private Cart cart;
++
++  @ManyToOne
++  @JoinColumn(name = "store_id", nullable = false)
++  private Store store;
++
++  @ManyToOne(optional = false)
++  @JoinColumn(name = "address_id", nullable = false)
++  private Address address;
++
++  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
++  private java.util.List<OrderItem> orderItems;
++
++  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
++  private java.util.List<OrderStatus> orderStatuses;
++
++  @Column(name = "total_amount", nullable = false)
++  private BigDecimal totalAmount;
++
++  @Column(name = "discount_amount")
++  private BigDecimal discountAmount;
++  
++  @Column(name = "shipping_cost", nullable = false)
++  private BigDecimal shippingCost;
++
++  @Column(name = "final_amount", nullable = false)
++  private BigDecimal finalAmount;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++  public User getUser() {
++    return user;
++  }
++
++  public void setUser(User user) {
++    this.user = user;
++  }
++
++  public Cart getCart() {
++    return cart;
++  }
++
++  public void setCart(Cart cart) {
++    this.cart = cart;
++  }
++
++  public Address getAddress() {
++    return address;
++  }
++
++  public void setAddress(Address address) {
++    this.address = address;
++  }
++
++  public java.util.List<OrderItem> getOrderItems() {
++    return orderItems;
++  }
++
++  public void setOrderItems(java.util.List<OrderItem> orderItems) {
++    this.orderItems = orderItems;
++  }
++  public Store getStore() {
++    return store;
++  }
++
++  public void setStore(Store store) {
++    this.store = store;
++  }
++
++  public java.util.List<OrderStatus> getOrderStatuses() {
++    return orderStatuses;
++  }
++  public void setOrderStatuses(java.util.List<OrderStatus> orderStatuses) {
++    this.orderStatuses = orderStatuses;
++  }
++
++  public BigDecimal getTotalAmount() {
++    return totalAmount;
++  }
++
++  public void setTotalAmount(BigDecimal totalAmount) {
++    this.totalAmount = totalAmount;
++  }
++
++  public BigDecimal getDiscountAmount() {
++    return discountAmount;
++  }
++
++  public void setDiscountAmount(BigDecimal discountAmount) {
++    this.discountAmount = discountAmount;
++  }
++
++  public BigDecimal getShippingCost() {
++    return shippingCost;
++  }
++
++  public void setShippingCost(BigDecimal shippingCost) {
++    this.shippingCost = shippingCost;
++  }
++
++  public BigDecimal getFinalAmount() {
++    return finalAmount;
++  }
++
++  public void setFinalAmount(BigDecimal finalAmount) {
++    this.finalAmount = finalAmount;
++  }
++
++
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java
+new file mode 100644
+index 0000000..371baf2
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java
+@@ -0,0 +1,101 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++
++import java.math.BigDecimal;
++import java.util.UUID;
++
++@Entity
++@Table(name = "order_items")
++public class OrderItem extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @ManyToOne
++  @JoinColumn(name = "order_id", nullable = false)
++  private Order order;
++
++  @ManyToOne
++  @JoinColumn(name = "product_id", nullable = false)
++  private Product product;
++
++  @Column(nullable = false)
++  private Integer quantity;
++
++  @Column(name = "base_price", nullable = false, precision = 10, scale = 2)
++  private BigDecimal basePrice;
++
++  @ManyToOne
++  @JoinColumn(name = "promotion_product_id")
++  private PromotionProduct promotionProduct;
++
++  @Column(name = "discount_amount", precision = 10, scale = 2)
++  private BigDecimal discountAmount;
++
++  @Column(name = "final_price", nullable = false, precision = 10, scale = 2)
++  private BigDecimal finalPrice;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public Order getOrder() {
++    return order;
++  }
++
++  public void setOrder(Order order) {
++    this.order = order;
++  }
++  public Product getProduct() {
++    return product;
++  }
++
++  public void setProduct(Product product) {
++    this.product = product;
++  }
++
++  public Integer getQuantity() {
++    return quantity;
++  }
++
++  public void setQuantity(Integer quantity) {
++    this.quantity = quantity;
++  }
++
++  public BigDecimal getBasePrice() {
++    return basePrice;
++  }
++
++  public void setBasePrice(BigDecimal basePrice) {
++    this.basePrice = basePrice;
++  }
++
++  public PromotionProduct getPromotionProduct() {
++    return promotionProduct;
++  }
++  public void setPromotionProduct(PromotionProduct promotionProduct) {
++    this.promotionProduct = promotionProduct;
++  }
++
++  public BigDecimal getDiscountAmount() {
++    return discountAmount;
++  }
++
++  public void setDiscountAmount(BigDecimal discountAmount) {
++    this.discountAmount = discountAmount;
++  }
++
++  public BigDecimal getFinalPrice() {
++    return finalPrice;
++  }
++
++  public void setFinalPrice(BigDecimal finalPrice) {
++    this.finalPrice = finalPrice;
++  }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
+new file mode 100644
+index 0000000..77fe7fb
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
+@@ -0,0 +1,46 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++
++import java.util.UUID;
++
++
++@Entity
++@Table(name = "order_status")
++public class OrderStatus extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @ManyToOne
++  @JoinColumn(name = "order_id", nullable = false)
++  private Order order;
++
++  @Enumerated(EnumType.STRING)
++  private OrderStatus status;
++  
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public Order getOrder() {
++    return order;
++  }
++
++  public void setOrder(Order order) {
++    this.order = order;
++  }
++
++  public OrderStatus getStatus() {
++    return status;
++  }
++
++  public void setStatus(OrderStatus status) {
++    this.status = status;
++  }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
+index 26778b1..f8daee4 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
+@@ -39,6 +39,15 @@ public class Product extends BaseEntity {
+ 
+     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+     private java.util.List<ProductStock> productStocks;
++
++    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
++    private java.util.List<CartItem> cartItems;
++
++    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
++    private java.util.List<PromotionProduct> promotionProducts;
++
++    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
++    private java.util.List<OrderItem> orderItems;
+     
+     // Getters and setters
+     public UUID getId() { return id; }
+@@ -80,5 +89,20 @@ public class Product extends BaseEntity {
+     }
+     
+     public java.util.List<ProductStock> getProductStocks() { return productStocks; }
+-    public void setProductStocks(java.util.List<ProductStock> productStocks) { this.productStocks = productStocks; }
++
++    public void setProductStocks(java.util.List<ProductStock> productStocks) {
++        this.productStocks = productStocks;
++    }
++    
++    public java.util.List<CartItem> getCartItems() { return cartItems; }
++    public void setCartItems(java.util.List<CartItem> cartItems) { this.cartItems = cartItems; }
++    
++    public java.util.List<PromotionProduct> getPromotionProducts() { return promotionProducts; }
++
++    public void setPromotionProducts(java.util.List<PromotionProduct> promotionProducts) {
++        this.promotionProducts = promotionProducts;
++    }
++    
++    public java.util.List<OrderItem> getOrderItems() { return orderItems; }
++    public void setOrderItems(java.util.List<OrderItem> orderItems) { this.orderItems = orderItems; }
+ }
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
+new file mode 100644
+index 0000000..23976e6
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
+@@ -0,0 +1,116 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++import java.math.BigDecimal;
++import java.time.LocalDateTime;
++import java.util.UUID;
++import com.narasena.xmart_grocery_api.enums.PromotionType;
++import com.narasena.xmart_grocery_api.enums.PromotionStatus;
++
++@Entity
++@Table(name = "promotions")
++public class Promotion extends BaseEntity {
++    
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++    
++    @Column(nullable = false)
++    private String name;
++    
++    @Column(columnDefinition = "TEXT")
++    private String description;
++    
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private PromotionType type;
++    
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private PromotionStatus status = PromotionStatus.DRAFT;
++    
++    // Discount values
++    @Column(name = "discount_percentage")
++    private BigDecimal discountPercentage;  // For PERCENTAGE_OFF
++    
++    @Column(name = "discount_amount")
++    private BigDecimal discountAmount;      // For FIXED_AMOUNT_OFF
++    
++    @Column(name = "minimum_purchase")
++    private BigDecimal minimumPurchase;     // Minimum order value
++    
++    @Column(name = "maximum_discount")
++    private BigDecimal maximumDiscount;     // Cap on discount amount
++    
++    // Buy X Get Y fields
++    @Column(name = "buy_quantity")
++    private Integer buyQuantity;            // Buy X
++    
++    @Column(name = "get_quantity")
++    private Integer getQuantity;            // Get Y
++    
++    // Time constraints
++    @Column(name = "start_date", nullable = false)
++    private LocalDateTime startDate;
++    
++    @Column(name = "end_date")
++    private LocalDateTime endDate;
++    
++    // Usage limits
++    @Column(name = "usage_limit")
++    private Integer usageLimit;             // Total uses allowed
++    
++    @Column(name = "usage_count")
++    private Integer usageCount = 0;         // Current usage
++    
++    @Column(name = "per_user_limit")
++    private Integer perUserLimit;           // Uses per customer
++    
++    // Promo code
++    @Column(name = "promo_code", unique = true)
++    private String promoCode;               // Optional coupon code
++    
++   @OneToMany(mappedBy = "promotion")
++   private java.util.List<PromotionProduct> applicableProducts;
++    
++   @OneToMany(mappedBy = "promotion")
++   private java.util.List<PromotionStore> applicableStores;
++
++    
++    // Getters and setters
++    public UUID getId() { return id; }
++    public void setId(UUID id) { this.id = id; }
++    
++    public String getName() { return name; }
++    public void setName(String name) { this.name = name; }
++    
++    public String getDescription() { return description; }
++    public void setDescription(String description) { this.description = description; }
++    
++    public PromotionType getType() { return type; }
++    public void setType(PromotionType type) { this.type = type; }
++    
++    public PromotionStatus getStatus() { return status; }
++    public void setStatus(PromotionStatus status) { this.status = status; }
++    
++    public BigDecimal getDiscountPercentage() { return discountPercentage; }
++    public void setDiscountPercentage(BigDecimal discountPercentage) { this.discountPercentage = discountPercentage; }
++    
++    public BigDecimal getDiscountAmount() { return discountAmount; }
++    public void setDiscountAmount(BigDecimal discountAmount) { this.discountAmount = discountAmount; }
++    
++    public LocalDateTime getStartDate() { return startDate; }
++    public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
++    
++    public LocalDateTime getEndDate() { return endDate; }
++    public void setEndDate(LocalDateTime endDate) { this.endDate = endDate; }
++    
++    public String getPromoCode() { return promoCode; }
++    public void setPromoCode(String promoCode) { this.promoCode = promoCode; }
++    
++    public java.util.List<PromotionProduct> getApplicableProducts() { return applicableProducts; }
++    public void setApplicableProducts(java.util.List<PromotionProduct> applicableProducts) { this.applicableProducts = applicableProducts; }
++    
++    public java.util.List<PromotionStore> getApplicableStores() { return applicableStores; }
++    public void setApplicableStores(java.util.List<PromotionStore> applicableStores) { this.applicableStores = applicableStores; }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java
+new file mode 100644
+index 0000000..2f5a340
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java
+@@ -0,0 +1,40 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++import java.util.UUID;
++
++@Entity
++@Table(name = "promotion_products")
++public class PromotionProduct extends BaseEntity {
++    
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++    
++    @ManyToOne
++    @JoinColumn(name = "promotion_id", nullable = false)
++    private Promotion promotion;
++    
++    @ManyToOne
++    @JoinColumn(name = "product_id", nullable = false)
++    private Product product;
++
++    @OneToMany(mappedBy = "promotionProduct", cascade = CascadeType.ALL)
++    private java.util.List<OrderItem> orderItems;
++    
++    // Getters and setters
++    public UUID getId() { return id; }
++    public void setId(UUID id) { this.id = id; }
++    
++    public Promotion getPromotion() { return promotion; }
++    public void setPromotion(Promotion promotion) { this.promotion = promotion; }
++    
++    public Product getProduct() { return product; }
++
++    public void setProduct(Product product) {
++        this.product = product;
++    }
++
++    public java.util.List<OrderItem> getOrderItems() { return orderItems; }
++    public void setOrderItems(java.util.List<OrderItem> orderItems) { this.orderItems = orderItems; }
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java
+new file mode 100644
+index 0000000..fa9cd7d
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java
+@@ -0,0 +1,45 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import java.util.UUID;
++
++import jakarta.persistence.*;
++
++@Entity
++@Table(name = "promotion_stores")
++public class PromotionStore extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @ManyToOne
++  @JoinColumn(name = "promotion_id", nullable = false)
++  private Promotion promotion;
++
++  @ManyToOne
++  @JoinColumn(name = "store_id", nullable = false)
++  private Store store;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public Promotion getPromotion() {
++    return promotion;
++  }
++
++  public void setPromotion(Promotion promotion) {
++    this.promotion = promotion;
++  }
++  public Store getStore() {
++    return store;
++  }
++
++  public void setStore(Store store) {
++    this.store = store;
++  }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+index df042ea..6cb51f6 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+@@ -31,8 +31,8 @@ public class Store extends BaseEntity {
+   private String resourceId;
+ 
+   @OneToOne
+-  @JoinColumn(name = "address_id")
+-  private Address address;
++  @JoinColumn(name = "store_address_id")
++  private Address storeAddress;
+ 
+   @Column
+   private String latitude;
+@@ -49,6 +49,9 @@ public class Store extends BaseEntity {
+   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+   private java.util.List<Product> products;
+ 
++  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
++  private java.util.List<Order> orders;
++
+   // Getters and setters
+   public UUID getId() {
+     return id;
+@@ -94,12 +97,12 @@ public class Store extends BaseEntity {
+   public void setResourceId(String resourceId) {
+     this.resourceId = resourceId;
+   }
+-  public Address getAddress() {
+-    return address;
++  public Address getStoreAddress() {
++    return storeAddress;
+   }
+ 
+-  public void setAddress(Address address) {
+-    this.address = address;
++  public void setStoreAddress(Address storeAddress) {
++    this.storeAddress = storeAddress;
+   }
+ 
+   public String getLatitude() {
+@@ -141,5 +144,13 @@ public class Store extends BaseEntity {
+   public void setProducts(java.util.List<Product> products) {
+     this.products = products;
+   }
++
++  public java.util.List<Order> getOrders() {
++    return orders;
++  }
++
++  public void setOrders(java.util.List<Order> orders) {
++    this.orders = orders;
++  }
+   
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+index 61dc068..6f4e0b6 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+@@ -50,6 +50,15 @@ public class User extends BaseEntity {
+   @Column
+   private String resourceId;
+ 
++  @Column(name = "referral_code")
++  private String referralCode;
++
++  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
++  private Cart cart;
++
++  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
++  private java.util.List<Order> orders;
++
+   // Getters and setters
+   public UUID getId() {
+     return id;
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java
+new file mode 100644
+index 0000000..a60122c
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java
+@@ -0,0 +1,40 @@
++package com.narasena.xmart_grocery_api.entity;
++import java.util.UUID;
++
++import jakarta.persistence.*;
++
++@Entity
++@Table(name = "user_referral")
++public class UserReferral {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @ManyToOne
++  @JoinColumn(name = "referrer_id")
++  private User referrer;
++
++  @ManyToOne
++  @JoinColumn(name = "referee_id", unique = true)
++  private User referee;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++  public void setId(UUID id) {
++    this.id = id;
++  }
++  public User getReferrer() {
++    return referrer;
++  }
++  public void setReferrer(User referrer) {
++    this.referrer = referrer;
++  }
++  public User getReferee() {
++    return referee;
++  }
++  public void setReferee(User referee) {
++    this.referee = referee;
++  }
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+new file mode 100644
+index 0000000..c4d53d9
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+@@ -0,0 +1,86 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++import java.math.BigDecimal;
++import java.time.LocalDateTime;
++import java.util.UUID;
++import com.narasena.xmart_grocery_api.enums.VoucherStatus;
++
++@Entity
++@Table(name = "vouchers")
++public class Voucher extends BaseEntity {
++    
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++    
++    @Column(name = "voucher_code", nullable = false, unique = true)
++    private String voucherCode;             // Unique code like "REF-ABC123"
++    
++    @ManyToOne
++    @JoinColumn(name = "user_id", nullable = false)
++    private User user;                      // Owner of voucher
++    
++    @ManyToOne
++    @JoinColumn(name = "promotion_id", nullable = false)
++    private Promotion promotion;            // Source promotion
++    
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private VoucherStatus status = VoucherStatus.ISSUED;
++    
++    // Voucher-specific values (can override promotion defaults)
++    @Column(name = "discount_amount")
++    private BigDecimal discountAmount;
++    
++    @Column(name = "minimum_purchase")
++    private BigDecimal minimumPurchase;
++    
++    @Column(name = "expires_at")
++    private LocalDateTime expiresAt;
++    
++    @Column(name = "used_at")
++    private LocalDateTime usedAt;
++    
++    @ManyToOne
++    @JoinColumn(name = "used_in_order_id")
++    private Order usedInOrder;              // Which order used this voucher
++    
++    // Source tracking
++    @Column(name = "source_type")
++    private String sourceType;              // "REFERRAL", "BIRTHDAY", "LOYALTY"
++    
++    @Column(name = "source_reference_id")
++    private UUID sourceReferenceId;         // ID of referral, etc.
++    
++    // Getters and setters
++    public UUID getId() { return id; }
++    public void setId(UUID id) { this.id = id; }
++    
++    public String getVoucherCode() { return voucherCode; }
++    public void setVoucherCode(String voucherCode) { this.voucherCode = voucherCode; }
++    
++    public User getUser() { return user; }
++    public void setUser(User user) { this.user = user; }
++    
++    public Promotion getPromotion() { return promotion; }
++    public void setPromotion(Promotion promotion) { this.promotion = promotion; }
++    
++    public VoucherStatus getStatus() { return status; }
++    public void setStatus(VoucherStatus status) { this.status = status; }
++    
++    public BigDecimal getDiscountAmount() { return discountAmount; }
++    public void setDiscountAmount(BigDecimal discountAmount) { this.discountAmount = discountAmount; }
++    
++    public LocalDateTime getExpiresAt() { return expiresAt; }
++    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
++    
++    public LocalDateTime getUsedAt() { return usedAt; }
++    public void setUsedAt(LocalDateTime usedAt) { this.usedAt = usedAt; }
++    
++    public Order getUsedInOrder() { return usedInOrder; }
++    public void setUsedInOrder(Order usedInOrder) { this.usedInOrder = usedInOrder; }
++    
++    public String getSourceType() { return sourceType; }
++    public void setSourceType(String sourceType) { this.sourceType = sourceType; }
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatus.java
+new file mode 100644
+index 0000000..bbc0315
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatus.java
+@@ -0,0 +1,8 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum OrderStatus {
++  PLACED,
++  SHIPPED,
++  DELIVERED,
++  CANCELLED
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionStatus.java
+new file mode 100644
+index 0000000..2dd8224
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionStatus.java
+@@ -0,0 +1,9 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum PromotionStatus {
++    DRAFT,      // Being created
++    ACTIVE,     // Currently running
++    PAUSED,     // Temporarily stopped
++    EXPIRED,    // Time ended
++    CANCELLED   // Manually stopped
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionType.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionType.java
+new file mode 100644
+index 0000000..599ff5e
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PromotionType.java
+@@ -0,0 +1,12 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum PromotionType {
++    PERCENTAGE_OFF,     // 20% off
++    FIXED_AMOUNT_OFF,   // $5 off
++    BUY_X_GET_Y,       // Buy 2 Get 1 Free
++    BUNDLE_DEAL,       // 3 items for $10
++    FREE_SHIPPING,     // Free delivery
++    MINIMUM_PURCHASE,  // $50 min for 10% off
++    FIRST_TIME_BUYER,  // New customer discount
++    LOYALTY_POINTS     // Earn/redeem points
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/VoucherStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/VoucherStatus.java
+new file mode 100644
+index 0000000..d2708c5
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/VoucherStatus.java
+@@ -0,0 +1,9 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum VoucherStatus {
++    ISSUED,     // Generated for user
++    ACTIVE,     // Ready to use
++    USED,       // Already redeemed
++    EXPIRED,    // Time expired
++    CANCELLED   // Manually cancelled
++}
+\ No newline at end of file
+-- 
+2.43.0
+
+
+From b6e6663c752be45ec199782bd4f7d706e8ec04a3 Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Tue, 26 Aug 2025 17:55:17 +0700
+Subject: [PATCH 05/10] feat: payment entities
+
+---
+ .../xmart_grocery_api/entity/Order.java       | 10 +++
+ .../xmart_grocery_api/entity/Payment.java     | 82 +++++++++++++++++++
+ .../entity/PaymentProof.java                  | 36 ++++++++
+ .../entity/PaymentStatus.java                 | 22 +++++
+ .../enums/PaymentMethod.java                  |  7 ++
+ .../enums/PaymentStatusType.java              |  7 ++
+ 6 files changed, 164 insertions(+)
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentMethod.java
+ create mode 100644 api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentStatusType.java
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
+index 7f079fb..69348ec 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
+@@ -44,6 +44,9 @@ public class Order extends BaseEntity {
+   @Column(name = "final_amount", nullable = false)
+   private BigDecimal finalAmount;
+ 
++  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
++  private Payment payment;
++
+   // Getters and setters
+   public UUID getId() {
+     return id;
+@@ -130,5 +133,12 @@ public class Order extends BaseEntity {
+     this.finalAmount = finalAmount;
+   }
+ 
++  public Payment getPayment() {
++    return payment;
++  }
++  public void setPayment(Payment payment) {
++    this.payment = payment;
++  }
++
+ 
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java
+new file mode 100644
+index 0000000..dfd7f98
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java
+@@ -0,0 +1,82 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++
++import java.math.BigDecimal;
++import java.util.UUID;
++
++import com.narasena.xmart_grocery_api.enums.PaymentMethod;
++
++@Entity
++@Table(name = "payments")
++public class Payment extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @OneToOne
++  @JoinColumn(name = "order_id", nullable = false)
++  private Order order;
++
++  @Column(name = "amount", nullable = false, precision = 10, scale = 2)
++  private BigDecimal amount;
++
++  @Enumerated(EnumType.STRING)
++  @Column(nullable = false)
++  private PaymentMethod method;
++  
++
++  @Column(name = "is_successful", nullable = false)
++  private boolean isSuccessful = false;
++
++  @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
++  private java.util.List<PaymentStatus> paymentStatuses;
++
++  // Getters and setters
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public Order getOrder() {
++    return order;
++  }
++
++  public void setOrder(Order order) {
++    this.order = order;
++  }
++  
++  public BigDecimal getAmount() {
++    return amount;
++  }
++
++  public void setAmount(BigDecimal amount) {
++    this.amount = amount;
++  }
++
++  public PaymentMethod getMethod() {
++    return method;
++  }
++
++  public void setMethod(PaymentMethod method) {
++    this.method = method;
++  }
++
++  public boolean isSuccessful() {
++    return isSuccessful;
++  }
++  public void setSuccessful(boolean successful) {
++    isSuccessful = successful;
++  }
++
++  public java.util.List<PaymentStatus> getPaymentStatuses() {
++    return paymentStatuses;
++  }
++  public void setPaymentStatuses(java.util.List<PaymentStatus> paymentStatuses) {
++    this.paymentStatuses = paymentStatuses;
++  }
++  
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+new file mode 100644
+index 0000000..e2e4260
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+@@ -0,0 +1,36 @@
++package com.narasena.xmart_grocery_api.entity;
++import jakarta.persistence.*;
++
++import java.time.LocalDateTime;
++import java.util.UUID;
++
++@Entity
++@Table(name = "payment_proof")
++public class PaymentProof extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @OneToOne
++  @JoinColumn(name = "payment_id", nullable = false)
++  private Payment payment;
++
++  @Column(name = "payment_proof_img_url", nullable = false)
++  private String paymentProofImgUrl;
++
++  @Column(name="resouce_id", nullable = false)
++  private String resourceId;
++
++  @Column(name = "is_verified", nullable = false)
++  private boolean isVerified = false;
++
++  @ManyToOne
++  @JoinColumn(name = "verified_by", nullable = false)
++  private User verifiedBy;
++
++  @Column(name = "verified_at", nullable = false)
++  private LocalDateTime verifiedAt;
++
++  @Column
++  private String notes;
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
+new file mode 100644
+index 0000000..4db70e6
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
+@@ -0,0 +1,22 @@
++package com.narasena.xmart_grocery_api.entity;
++
++import jakarta.persistence.*;
++
++import java.util.UUID;
++
++@Entity
++@Table(name = "payment_statuses")
++public class PaymentStatus extends BaseEntity {
++  @Id
++  @GeneratedValue(strategy = GenerationType.UUID)
++  private UUID id;
++
++  @ManyToOne
++  @JoinColumn(name = "payment_id", nullable = false)
++  private Payment payment;
++
++  @Enumerated(EnumType.STRING)
++  @Column(nullable = false)
++  private PaymentStatus type;
++  
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentMethod.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentMethod.java
+new file mode 100644
+index 0000000..50270db
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentMethod.java
+@@ -0,0 +1,7 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum PaymentMethod {
++  TRANSFER,
++  PAYMENT_GATEWAY,
++  CASH_ON_DELIVERY
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentStatusType.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentStatusType.java
+new file mode 100644
+index 0000000..919d38a
+--- /dev/null
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/PaymentStatusType.java
+@@ -0,0 +1,7 @@
++package com.narasena.xmart_grocery_api.enums;
++
++public enum PaymentStatusType {
++  PENDING,
++  SUCCESS,
++  FAILED
++}
+-- 
+2.43.0
+
+
+From b72cd5f5d84ad3e3e5c866477aa68d07f73cad8b Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Wed, 27 Aug 2025 15:01:51 +0700
+Subject: [PATCH 06/10] fix: entities
+
+---
+ .../xmart_grocery_api/entity/Address.java     | 40 ++++++++++++
+ .../xmart_grocery_api/entity/OrderStatus.java |  8 ++-
+ .../entity/PaymentProof.java                  | 64 +++++++++++++++++++
+ .../entity/PaymentStatus.java                 | 29 ++++++++-
+ .../entity/ProductBrand.java                  |  2 +-
+ .../entity/ProductImage.java                  |  8 +++
+ .../entity/ProductSubCategory.java            | 10 ++-
+ .../xmart_grocery_api/entity/Store.java       | 10 +--
+ .../xmart_grocery_api/entity/User.java        | 39 +++++++++++
+ .../xmart_grocery_api/entity/Voucher.java     |  8 +++
+ ...{OrderStatus.java => OrderStatusType.java} |  2 +-
+ 11 files changed, 207 insertions(+), 13 deletions(-)
+ rename api/src/main/java/com/narasena/xmart_grocery_api/enums/{OrderStatus.java => OrderStatusType.java} (76%)
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+index b03ad65..2c25686 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+@@ -113,4 +113,44 @@ public class Address extends BaseEntity {
+   
+   public String getCountry() { return country; }
+   public void setCountry(String country) { this.country = country; }
++
++  public String getSubDistrict() {
++    return subDistrict;
++  }
++
++  public void setSubDistrict(String subDistrict) {
++    this.subDistrict = subDistrict;
++  }
++
++  public String getDistrict() {
++    return district;
++  }
++
++  public void setDistrict(String district) {
++    this.district = district;
++  }
++
++  public String getPostalCode() {
++    return postalCode;
++  }
++
++  public void setPostalCode(String postalCode) {
++    this.postalCode = postalCode;
++  }
++
++  public String getLatitude() {
++    return latitude;
++  }
++
++  public void setLatitude(String latitude) {
++    this.latitude = latitude;
++  }
++
++  public String getLongitude() {
++    return longitude;
++  }
++
++  public void setLongitude(String longitude) {
++    this.longitude = longitude;
++  }
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
+index 77fe7fb..5d9ab23 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
+@@ -4,6 +4,8 @@ import jakarta.persistence.*;
+ 
+ import java.util.UUID;
+ 
++import com.narasena.xmart_grocery_api.enums.OrderStatusType;
++
+ 
+ @Entity
+ @Table(name = "order_status")
+@@ -17,7 +19,7 @@ public class OrderStatus extends BaseEntity {
+   private Order order;
+ 
+   @Enumerated(EnumType.STRING)
+-  private OrderStatus status;
++  private OrderStatusType status;
+   
+   // Getters and setters
+   public UUID getId() {
+@@ -36,11 +38,11 @@ public class OrderStatus extends BaseEntity {
+     this.order = order;
+   }
+ 
+-  public OrderStatus getStatus() {
++  public OrderStatusType getStatus() {
+     return status;
+   }
+ 
+-  public void setStatus(OrderStatus status) {
++  public void setStatus(OrderStatusType status) {
+     this.status = status;
+   }
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+index e2e4260..b159d94 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+@@ -33,4 +33,68 @@ public class PaymentProof extends BaseEntity {
+ 
+   @Column
+   private String notes;
++
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public Payment getPayment() {
++    return payment;
++  }
++
++  public void setPayment(Payment payment) {
++    this.payment = payment;
++  }
++
++  public String getPaymentProofImgUrl() {
++    return paymentProofImgUrl;
++  }
++
++  public void setPaymentProofImgUrl(String paymentProofImgUrl) {
++    this.paymentProofImgUrl = paymentProofImgUrl;
++  }
++
++  public String getResourceId() {
++    return resourceId;
++  }
++
++  public void setResourceId(String resourceId) {
++    this.resourceId = resourceId;
++  }
++
++  public boolean isVerified() {
++    return isVerified;
++  }
++
++  public void setVerified(boolean verified) {
++    isVerified = verified;
++  }
++
++  public User getVerifiedBy() {
++    return verifiedBy;
++  }
++
++  public void setVerifiedBy(User verifiedBy) {
++    this.verifiedBy = verifiedBy;
++  }
++
++  public LocalDateTime getVerifiedAt() {
++    return verifiedAt;
++  }
++
++  public void setVerifiedAt(LocalDateTime verifiedAt) {
++    this.verifiedAt = verifiedAt;
++  }
++
++  public String getNotes() {
++    return notes;
++  }
++
++  public void setNotes(String notes) {
++    this.notes = notes;
++  }
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
+index 4db70e6..6efb5f6 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
+@@ -4,6 +4,8 @@ import jakarta.persistence.*;
+ 
+ import java.util.UUID;
+ 
++import com.narasena.xmart_grocery_api.enums.PaymentStatusType;
++
+ @Entity
+ @Table(name = "payment_statuses")
+ public class PaymentStatus extends BaseEntity {
+@@ -17,6 +19,29 @@ public class PaymentStatus extends BaseEntity {
+ 
+   @Enumerated(EnumType.STRING)
+   @Column(nullable = false)
+-  private PaymentStatus type;
+-  
++  private PaymentStatusType status;
++
++  public UUID getId() {
++    return id;
++  }
++
++  public void setId(UUID id) {
++    this.id = id;
++  }
++
++  public Payment getPayment() {
++    return payment;
++  }
++
++  public void setPayment(Payment payment) {
++    this.payment = payment;
++  }
++
++  public PaymentStatusType getStatus() {
++    return status;
++  }
++
++  public void setStatus(PaymentStatusType status) {
++    this.status = status;
++  }
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+index 370851c..c77939a 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+@@ -10,7 +10,7 @@ public class ProductBrand extends BaseEntity {
+   @GeneratedValue(strategy = GenerationType.UUID)
+   private UUID id;
+ 
+-  @OneToMany(mappedBy = "brand", cascade = CascadeType.ALL)
++  @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
+   private java.util.List<Product> products;
+ 
+   @Column(nullable = false, unique = true)
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+index 2ffbb12..0623397 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+@@ -55,4 +55,12 @@ public class ProductImage extends BaseEntity {
+   public void setResourceId(String resourceId) {
+     this.resourceId = resourceId;
+   }
++
++  public Boolean getMainImg() {
++    return isMainImg;
++  }
++
++  public void setMainImg(Boolean mainImg) {
++    isMainImg = mainImg;
++  }
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
+index 46a9cbb..b008438 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
+@@ -23,7 +23,7 @@ public class ProductSubCategory extends BaseEntity {
+   @Column(columnDefinition = "TEXT")
+   private String description;
+ 
+-  @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL)
++  @OneToMany(mappedBy = "productSubCategory", cascade = CascadeType.ALL)
+   private java.util.List<Product> products;
+ 
+     // Getters and setters
+@@ -50,4 +50,12 @@ public class ProductSubCategory extends BaseEntity {
+     
+     public ProductCategory getCategory() { return category; }
+     public void setCategory(ProductCategory category) { this.category = category; }
++
++    public java.util.List<Product> getProducts() {
++        return products;
++    }
++
++    public void setProducts(java.util.List<Product> products) {
++        this.products = products;
++    }
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+index 6cb51f6..07311a8 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+@@ -47,7 +47,7 @@ public class Store extends BaseEntity {
+   private String email;
+ 
+   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+-  private java.util.List<Product> products;
++  private java.util.List<ProductStock> productStocks;
+ 
+   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+   private java.util.List<Order> orders;
+@@ -137,12 +137,12 @@ public class Store extends BaseEntity {
+     this.email = email;
+   }
+ 
+-  public java.util.List<Product> getProducts() {
+-    return products;
++  public java.util.List<ProductStock> getProductStocks() {
++    return productStocks;
+   }
+ 
+-  public void setProducts(java.util.List<Product> products) {
+-    this.products = products;
++  public void setProductStocks(java.util.List<ProductStock> productStocks) {
++    this.productStocks = productStocks;
+   }
+ 
+   public java.util.List<Order> getOrders() {
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+index 6f4e0b6..822426c 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+@@ -127,4 +127,43 @@ public class User extends BaseEntity {
+     this.resourceId = resourceId;
+   }
+ 
++    public UserRole getRole() {
++        return role;
++    }
++
++    public void setRole(UserRole role) {
++        this.role = role;
++    }
++
++    public java.util.List<Address> getUserAddresses() {
++        return userAddresses;
++    }
++
++    public void setUserAddresses(java.util.List<Address> userAddresses) {
++        this.userAddresses = userAddresses;
++    }
++
++    public String getReferralCode() {
++        return referralCode;
++    }
++
++    public void setReferralCode(String referralCode) {
++        this.referralCode = referralCode;
++    }
++
++    public Cart getCart() {
++        return cart;
++    }
++
++    public void setCart(Cart cart) {
++        this.cart = cart;
++    }
++
++    public java.util.List<Order> getOrders() {
++        return orders;
++    }
++
++    public void setOrders(java.util.List<Order> orders) {
++        this.orders = orders;
++    }
+ }
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+index c4d53d9..164b8a8 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+@@ -83,4 +83,12 @@ public class Voucher extends BaseEntity {
+     
+     public String getSourceType() { return sourceType; }
+     public void setSourceType(String sourceType) { this.sourceType = sourceType; }
++
++    public UUID getSourceReferenceId() {
++        return sourceReferenceId;
++    }
++
++    public void setSourceReferenceId(UUID sourceReferenceId) {
++        this.sourceReferenceId = sourceReferenceId;
++    }
+ }
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatusType.java
+similarity index 76%
+rename from api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatus.java
+rename to api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatusType.java
+index bbc0315..b2bc15d 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatus.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/enums/OrderStatusType.java
+@@ -1,6 +1,6 @@
+ package com.narasena.xmart_grocery_api.enums;
+ 
+-public enum OrderStatus {
++public enum OrderStatusType {
+   PLACED,
+   SHIPPED,
+   DELIVERED,
+-- 
+2.43.0
+
+
+From faa6a53df751d6b085e01ebfbc4c873af89e61b1 Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Wed, 27 Aug 2025 15:43:23 +0700
+Subject: [PATCH 07/10] fix: change string type to text column def for table
+
+---
+ .../xmart_grocery_api/entity/Address.java     | 24 +++++++++----------
+ .../entity/PaymentProof.java                  |  6 ++---
+ .../xmart_grocery_api/entity/Product.java     |  6 ++---
+ .../entity/ProductBrand.java                  |  8 +++----
+ .../entity/ProductCategory.java               |  4 ++--
+ .../entity/ProductImage.java                  |  4 ++--
+ .../entity/ProductStockLog.java               |  4 ++--
+ .../entity/ProductSubCategory.java            |  4 ++--
+ .../xmart_grocery_api/entity/Promotion.java   |  4 ++--
+ .../xmart_grocery_api/entity/Store.java       | 16 ++++++-------
+ .../xmart_grocery_api/entity/User.java        | 18 +++++++-------
+ .../xmart_grocery_api/entity/Voucher.java     |  4 ++--
+ 12 files changed, 51 insertions(+), 51 deletions(-)
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+index 2c25686..624d304 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+@@ -24,40 +24,40 @@ public class Address extends BaseEntity {
+   @JoinColumn(name = "store_id")
+   private Store store;
+ 
+-  @Column(nullable = false)
++  @Column(columnDefinition = "TEXT",nullable = false)
+   private String name;
+ 
+-  @Column(name = "phone_number", nullable = false)
++  @Column(columnDefinition = "TEXT",name = "phone_number", nullable = false)
+   private String phoneNumber;
+ 
+-  @Column(name = "is_main_address", nullable = false)
++  @Column(columnDefinition = "TEXT",name = "is_main_address", nullable = false)
+   private Boolean isMainAddress = false;
+ 
+-  @Column(name = "street_address", nullable = false)
++  @Column(columnDefinition = "TEXT",name = "street_address", nullable = false)
+   private String streetAddress;
+ 
+-  @Column(name = "sub_district")
++  @Column(columnDefinition = "TEXT",name = "sub_district")
+   private String subDistrict;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String district;
+ 
+-  @Column(nullable = false)
++  @Column(columnDefinition = "TEXT",nullable = false)
+   private String city;
+ 
+-  @Column(nullable = false)
++  @Column(columnDefinition = "TEXT",nullable = false)
+   private String province;
+ 
+-  @Column(nullable = false)
++  @Column(columnDefinition = "TEXT",nullable = false)
+   private String country;
+ 
+-  @Column(name = "postal_code")
++  @Column(columnDefinition = "TEXT", name = "postal_code")
+   private String postalCode;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String latitude;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String longitude;
+ 
+   public User getUser() {
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+index b159d94..8fed006 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+@@ -15,10 +15,10 @@ public class PaymentProof extends BaseEntity {
+   @JoinColumn(name = "payment_id", nullable = false)
+   private Payment payment;
+ 
+-  @Column(name = "payment_proof_img_url", nullable = false)
++  @Column(columnDefinition = "TEXT", name = "payment_proof_img_url", nullable = false)
+   private String paymentProofImgUrl;
+ 
+-  @Column(name="resouce_id", nullable = false)
++  @Column(columnDefinition = "TEXT", name="resouce_id", nullable = false)
+   private String resourceId;
+ 
+   @Column(name = "is_verified", nullable = false)
+@@ -31,7 +31,7 @@ public class PaymentProof extends BaseEntity {
+   @Column(name = "verified_at", nullable = false)
+   private LocalDateTime verifiedAt;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String notes;
+ 
+   public UUID getId() {
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
+index f8daee4..0811c89 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
+@@ -11,10 +11,10 @@ public class Product extends BaseEntity {
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+ 
+-    @Column(nullable = false, unique = true)
++    @Column(columnDefinition = "TEXT",nullable = false, unique = true)
+     private String name;
+ 
+-    @Column(nullable = false, unique = true)
++    @Column(columnDefinition = "TEXT",nullable = false, unique = true)
+     private String slug;
+     
+     @Column(columnDefinition = "TEXT")
+@@ -23,7 +23,7 @@ public class Product extends BaseEntity {
+     @Column(nullable = false, precision = 10, scale = 2)
+     private BigDecimal price;
+ 
+-    @Column(nullable = false, unique = true)
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+     private String sku;
+ 
+     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+index c77939a..6235df1 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+@@ -13,19 +13,19 @@ public class ProductBrand extends BaseEntity {
+   @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
+   private java.util.List<Product> products;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String name;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String slug;
+ 
+   @Column(columnDefinition = "TEXT")
+   private String description;
+ 
+-  @Column(name = "img_url")
++  @Column(columnDefinition = "TEXT", name = "img_url")
+   private String brandImgUrl;  // Generic URL - works with any CDN
+   
+-  @Column(name = "resource_id")
++  @Column(columnDefinition = "TEXT", name = "resource_id")
+   private String resourceId; // Provider-specific ID for deletion
+ 
+   // Getters and setters
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java
+index 46f4af4..4660fd4 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java
+@@ -13,10 +13,10 @@ public class ProductCategory extends BaseEntity {
+   @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+   private java.util.List<ProductSubCategory> subCategories;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String name;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String slug;
+ 
+   @Column(columnDefinition = "TEXT")
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+index 0623397..c87ce86 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+@@ -15,10 +15,10 @@ public class ProductImage extends BaseEntity {
+   @JoinColumn(name = "product_id")
+   private Product product;
+ 
+-  @Column (name = "img_url")
++  @Column(columnDefinition = "TEXT", name = "img_url")
+   private String imgUrl;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String resourceId; // Provider-specific ID for deletion
+ 
+   @Column
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
+index 2f1fbf7..9dbc30c 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
+@@ -22,10 +22,10 @@ public class ProductStockLog extends BaseEntity {
+   @Column(nullable = false)
+   private ProductStockMovementType type;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String description;
+ 
+-  @Column (name="type_reference")
++  @Column(columnDefinition = "TEXT", name="type_reference")
+   private String typeReference;
+ 
+   // Getters and setters
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
+index b008438..cf07a6d 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
+@@ -14,10 +14,10 @@ public class ProductSubCategory extends BaseEntity {
+   @JoinColumn(name = "category_id")
+   private ProductCategory category;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String name;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String slug;
+ 
+   @Column(columnDefinition = "TEXT")
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
+index 23976e6..bd679fb 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
+@@ -15,7 +15,7 @@ public class Promotion extends BaseEntity {
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+     
+-    @Column(nullable = false)
++    @Column(columnDefinition = "TEXT", nullable = false)
+     private String name;
+     
+     @Column(columnDefinition = "TEXT")
+@@ -67,7 +67,7 @@ public class Promotion extends BaseEntity {
+     private Integer perUserLimit;           // Uses per customer
+     
+     // Promo code
+-    @Column(name = "promo_code", unique = true)
++    @Column(columnDefinition = "TEXT", name = "promo_code", unique = true)
+     private String promoCode;               // Optional coupon code
+     
+    @OneToMany(mappedBy = "promotion")
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+index 07311a8..33d8ae3 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+@@ -11,10 +11,10 @@ public class Store extends BaseEntity {
+   @GeneratedValue(strategy = GenerationType.UUID)
+   private UUID id;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String name;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String slug;
+ 
+   @Column(columnDefinition = "TEXT")
+@@ -24,26 +24,26 @@ public class Store extends BaseEntity {
+   @JoinColumn(name = "store_manager_id")
+   private User storeManager;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String storeImgUrl;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String resourceId;
+ 
+   @OneToOne
+   @JoinColumn(name = "store_address_id")
+   private Address storeAddress;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String latitude;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String longitude;
+ 
+-  @Column( unique = true)
++  @Column(columnDefinition = "TEXT", unique = true)
+   private String phoneNumber;
+ 
+-  @Column(unique = true)
++  @Column(columnDefinition = "TEXT", unique = true)
+   private String email;
+ 
+   @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+index 822426c..318defd 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+@@ -12,25 +12,25 @@ public class User extends BaseEntity {
+   @GeneratedValue(strategy = GenerationType.UUID)
+   private UUID id;
+ 
+-  @Column(nullable = false, unique = true)
++  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+   private String email;
+ 
+-  @Column(nullable = false)
++  @Column(columnDefinition = "TEXT", nullable = false)
+   private String password;
+ 
+-  @Column(nullable = false)
++  @Column(columnDefinition = "TEXT", nullable = false)
+   private String phoneNumber;
+ 
+   @Column(nullable = false)
+   private Boolean isVerified = false;
+ 
+-  @Column(nullable = false)
++  @Column(columnDefinition = "TEXT", nullable = false)
+   private String firstName;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String lastName;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String dateOfBirth;
+ 
+   @Enumerated(EnumType.STRING)
+@@ -44,13 +44,13 @@ public class User extends BaseEntity {
+   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+   private java.util.List<Address> userAddresses;  
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String userImgUrl;
+ 
+-  @Column
++  @Column(columnDefinition = "TEXT")
+   private String resourceId;
+ 
+-  @Column(name = "referral_code")
++  @Column(columnDefinition = "TEXT", name = "referral_code")
+   private String referralCode;
+ 
+   @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+index 164b8a8..e452d25 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+@@ -14,7 +14,7 @@ public class Voucher extends BaseEntity {
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+     
+-    @Column(name = "voucher_code", nullable = false, unique = true)
++    @Column(columnDefinition = "TEXT", name = "voucher_code", nullable = false, unique = true)
+     private String voucherCode;             // Unique code like "REF-ABC123"
+     
+     @ManyToOne
+@@ -47,7 +47,7 @@ public class Voucher extends BaseEntity {
+     private Order usedInOrder;              // Which order used this voucher
+     
+     // Source tracking
+-    @Column(name = "source_type")
++    @Column(columnDefinition = "TEXT", name = "source_type")
+     private String sourceType;              // "REFERRAL", "BIRTHDAY", "LOYALTY"
+     
+     @Column(name = "source_reference_id")
+-- 
+2.43.0
+
+
+From 684eb430694b07479a1f2b1fb028d0f7d1bf0d39 Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Wed, 27 Aug 2025 15:45:35 +0700
+Subject: [PATCH 08/10] fix: remove graphql
+
+---
+ api/pom.xml                                      | 16 ++++++----------
+ .../xmart_grocery_api/config/SecurityConfig.java | 15 +++++++--------
+ 2 files changed, 13 insertions(+), 18 deletions(-)
+
+diff --git a/api/pom.xml b/api/pom.xml
+index 74e88c3..9692143 100644
+--- a/api/pom.xml
++++ b/api/pom.xml
+@@ -38,10 +38,6 @@
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-data-jpa</artifactId>
+ 		</dependency>
+-		<dependency>
+-			<groupId>org.springframework.boot</groupId>
+-			<artifactId>spring-boot-starter-graphql</artifactId>
+-		</dependency>
+ 		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-security</artifactId>
+@@ -85,11 +81,11 @@
+ 			<scope>runtime</scope>
+ 			<optional>true</optional>
+ 		</dependency>
+-	<dependency>
+-  	<groupId>me.paulschwarz</groupId>
+-  	<artifactId>spring-dotenv</artifactId>
+-  <version>4.0.0</version>
+-</dependency>
++		<dependency>
++			<groupId>me.paulschwarz</groupId>
++			<artifactId>spring-dotenv</artifactId>
++			<version>4.0.0</version>
++		</dependency>
+ 
+ 	</dependencies>
+ 
+@@ -102,4 +98,4 @@
+ 		</plugins>
+ 	</build>
+ 
+-</project>
++</project>
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/config/SecurityConfig.java b/api/src/main/java/com/narasena/xmart_grocery_api/config/SecurityConfig.java
+index 01028d0..84e2421 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/config/SecurityConfig.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/config/SecurityConfig.java
+@@ -11,12 +11,11 @@ public class SecurityConfig {
+   @Bean
+   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+     return http
+-      .authorizeHttpRequests(auth -> auth
+-        .requestMatchers("/graphql", "/graphiql").authenticated()
+-        .anyRequest().permitAll()
+-      )
+-      .httpBasic(basic -> {})
+-      .csrf(csrf -> csrf.disable())
+-      .build();
++        .authorizeHttpRequests(auth -> auth
++            .anyRequest().permitAll())
++        .httpBasic(basic -> {
++        })
++        .csrf(csrf -> csrf.disable())
++        .build();
+   }
+-}
++}
+\ No newline at end of file
+-- 
+2.43.0
+
+
+From 1418fd69f2e8c91298479d4550eb7167e3231153 Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Wed, 27 Aug 2025 16:54:13 +0700
+Subject: [PATCH 09/10] chore: install lombok deps
+
+---
+ api/pom.xml | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/api/pom.xml b/api/pom.xml
+index 9692143..9e87622 100644
+--- a/api/pom.xml
++++ b/api/pom.xml
+@@ -54,6 +54,12 @@
+ 			<groupId>org.flywaydb</groupId>
+ 			<artifactId>flyway-database-postgresql</artifactId>
+ 		</dependency>
++		<dependency>
++		<groupId>org.projectlombok</groupId>
++		<artifactId>lombok</artifactId>
++		<version>1.18.38</version>
++		<scope>provided</scope>
++	</dependency>
+ 
+ 		<dependency>
+ 			<groupId>com.h2database</groupId>
+-- 
+2.43.0
+
+
+From 24d9802260f7f823fa977aa9ee30da07f6540823 Mon Sep 17 00:00:00 2001
+From: narasena <cursedsena@gmail.com>
+Date: Wed, 27 Aug 2025 17:42:15 +0700
+Subject: [PATCH 10/10] feat: change getter and setter with lombok @data
+
+---
+ .../xmart_grocery_api/entity/Address.java     | 208 +++++------------
+ .../xmart_grocery_api/entity/BaseEntity.java  |  24 +-
+ .../xmart_grocery_api/entity/Cart.java        |  24 +-
+ .../xmart_grocery_api/entity/CartItem.java    |  41 ++--
+ .../xmart_grocery_api/entity/Order.java       | 162 +++----------
+ .../xmart_grocery_api/entity/OrderItem.java   | 108 ++-------
+ .../xmart_grocery_api/entity/OrderStatus.java |  49 ++--
+ .../xmart_grocery_api/entity/Payment.java     |  86 ++-----
+ .../entity/PaymentProof.java                  | 108 ++-------
+ .../entity/PaymentStatus.java                 |  50 ++--
+ .../xmart_grocery_api/entity/Product.java     |  73 +-----
+ .../entity/ProductBrand.java                  |  66 +++---
+ .../entity/ProductCategory.java               |  68 ++----
+ .../entity/ProductImage.java                  |  69 ++----
+ .../entity/ProductStock.java                  |  68 +++---
+ .../entity/ProductStockLog.java               |  86 ++-----
+ .../entity/ProductSubCategory.java            |  80 +++----
+ .../xmart_grocery_api/entity/Promotion.java   |  96 +++-----
+ .../entity/PromotionProduct.java              |  30 +--
+ .../entity/PromotionStore.java                |  51 ++--
+ .../xmart_grocery_api/entity/Store.java       | 183 ++++-----------
+ .../xmart_grocery_api/entity/User.java        | 218 +++++-------------
+ .../entity/UserReferral.java                  |  44 ++--
+ .../xmart_grocery_api/entity/Voucher.java     |  73 ++----
+ 24 files changed, 578 insertions(+), 1487 deletions(-)
+
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+index 624d304..baede35 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Address.java
+@@ -1,156 +1,68 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
++import com.narasena.xmart_grocery_api.enums.AddressType;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.util.UUID;
+-import com.narasena.xmart_grocery_api.enums.AddressType;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "addresses")
++@Data
+ public class Address extends BaseEntity {
+-  
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @Enumerated(EnumType.STRING)
+-  @Column(nullable = false)
+-  private AddressType type;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "user_id")
+-  private User user;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "store_id")
+-  private Store store;
+-
+-  @Column(columnDefinition = "TEXT",nullable = false)
+-  private String name;
+-
+-  @Column(columnDefinition = "TEXT",name = "phone_number", nullable = false)
+-  private String phoneNumber;
+-
+-  @Column(columnDefinition = "TEXT",name = "is_main_address", nullable = false)
+-  private Boolean isMainAddress = false;
+-
+-  @Column(columnDefinition = "TEXT",name = "street_address", nullable = false)
+-  private String streetAddress;
+-
+-  @Column(columnDefinition = "TEXT",name = "sub_district")
+-  private String subDistrict;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String district;
+-
+-  @Column(columnDefinition = "TEXT",nullable = false)
+-  private String city;
+-
+-  @Column(columnDefinition = "TEXT",nullable = false)
+-  private String province;
+-
+-  @Column(columnDefinition = "TEXT",nullable = false)
+-  private String country;
+-
+-  @Column(columnDefinition = "TEXT", name = "postal_code")
+-  private String postalCode;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String latitude;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String longitude;
+-
+-  public User getUser() {
+-    return user;
+-  }
+-
+-  public void setUser(User user) {
+-    this.user = user;
+-  }
+-
+-  public String getName() {
+-    return name;
+-  }
+-
+-  public void setName(String name) {
+-    this.name = name;
+-  }
+-
+-  public String getPhoneNumber() {
+-    return phoneNumber;
+-  }
+-
+-  public void setPhoneNumber(String phoneNumber) {
+-    this.phoneNumber = phoneNumber;
+-  }
+-
+-  public Boolean getIsMainAddress() {
+-    return isMainAddress;
+-  }
+-
+-  public void setIsMainAddress(Boolean isMainAddress) {
+-    this.isMainAddress = isMainAddress;
+-  }
+-
+-  // Getters and setters for new fields
+-  public UUID getId() { return id; }
+-  public void setId(UUID id) { this.id = id; }
+-  
+-  public AddressType getType() { return type; }
+-  public void setType(AddressType type) { this.type = type; }
+-  
+-  public Store getStore() { return store; }
+-  public void setStore(Store store) { this.store = store; }
+-  
+-  public String getStreetAddress() { return streetAddress; }
+-  public void setStreetAddress(String streetAddress) { this.streetAddress = streetAddress; }
+-  
+-  public String getCity() { return city; }
+-  public void setCity(String city) { this.city = city; }
+-  
+-  public String getProvince() { return province; }
+-  public void setProvince(String province) { this.province = province; }
+-  
+-  public String getCountry() { return country; }
+-  public void setCountry(String country) { this.country = country; }
+-
+-  public String getSubDistrict() {
+-    return subDistrict;
+-  }
+-
+-  public void setSubDistrict(String subDistrict) {
+-    this.subDistrict = subDistrict;
+-  }
+-
+-  public String getDistrict() {
+-    return district;
+-  }
+-
+-  public void setDistrict(String district) {
+-    this.district = district;
+-  }
+-
+-  public String getPostalCode() {
+-    return postalCode;
+-  }
+-
+-  public void setPostalCode(String postalCode) {
+-    this.postalCode = postalCode;
+-  }
+-
+-  public String getLatitude() {
+-    return latitude;
+-  }
+-
+-  public void setLatitude(String latitude) {
+-    this.latitude = latitude;
+-  }
+-
+-  public String getLongitude() {
+-    return longitude;
+-  }
+-
+-  public void setLongitude(String longitude) {
+-    this.longitude = longitude;
+-  }
+-}
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private AddressType type;
++
++    @ManyToOne
++    @JoinColumn(name = "user_id")
++    private User user;
++
++    @ManyToOne
++    @JoinColumn(name = "store_id")
++    private Store store;
++
++    @Column(columnDefinition = "TEXT", nullable = false)
++    private String name;
++
++    @Column(columnDefinition = "TEXT", name = "phone_number", nullable = false)
++    private String phoneNumber;
++
++    @Column(columnDefinition = "TEXT", name = "is_main_address", nullable = false)
++    private Boolean isMainAddress = false;
++
++    @Column(columnDefinition = "TEXT", name = "street_address", nullable = false)
++    private String streetAddress;
++
++    @Column(columnDefinition = "TEXT", name = "sub_district")
++    private String subDistrict;
++
++    @Column(columnDefinition = "TEXT")
++    private String district;
++
++    @Column(columnDefinition = "TEXT", nullable = false)
++    private String city;
++
++    @Column(columnDefinition = "TEXT", nullable = false)
++    private String province;
++
++    @Column(columnDefinition = "TEXT", nullable = false)
++    private String country;
++
++    @Column(columnDefinition = "TEXT", name = "postal_code")
++    private String postalCode;
++
++    @Column(columnDefinition = "TEXT")
++    private String latitude;
++
++    @Column(columnDefinition = "TEXT")
++    private String longitude;
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseEntity.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseEntity.java
+index 4bda541..b4d6e74 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseEntity.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/BaseEntity.java
+@@ -1,11 +1,17 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+-import jakarta.persistence.*;
++import jakarta.persistence.Column;
++import jakarta.persistence.MappedSuperclass;
++import jakarta.persistence.PrePersist;
++import jakarta.persistence.PreUpdate;
++import lombok.Data;
++
+ import java.time.LocalDateTime;
+ 
+ @MappedSuperclass
++@Data
+ public abstract class BaseEntity {
+-    
++
+     @Column(name = "created_at")
+     private LocalDateTime createdAt;
+ 
+@@ -14,7 +20,7 @@ public abstract class BaseEntity {
+ 
+     @Column(name = "deleted_at", nullable = true)
+     private LocalDateTime deletedAt;
+-    
++
+     @PrePersist
+     protected void onCreate() {
+         createdAt = LocalDateTime.now();
+@@ -25,14 +31,4 @@ public abstract class BaseEntity {
+     protected void onUpdate() {
+         updatedAt = LocalDateTime.now();
+     }
+-
+-    // Getters and setters
+-    public LocalDateTime getCreatedAt() { return createdAt; }
+-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+-    
+-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+-    
+-    public LocalDateTime getDeletedAt() { return deletedAt; }
+-    public void setDeletedAt(LocalDateTime deletedAt) { this.deletedAt = deletedAt; }
+-}
+\ No newline at end of file
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java
+index 1f8376a..6825b2e 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Cart.java
+@@ -1,30 +1,26 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "carts")
++@Data
+ public class Cart extends BaseEntity {
+-    
++
+     @Id
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+-    
++
+     @OneToOne
+     @JoinColumn(name = "user_id", nullable = false, unique = true)
+     private User user;
+-    
++
+     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
+     private java.util.List<CartItem> cartItems;
+-    
+-    // Getters and setters
+-    public UUID getId() { return id; }
+-    public void setId(UUID id) { this.id = id; }
+-    
+-    public User getUser() { return user; }
+-    public void setUser(User user) { this.user = user; }
+-    
+-    public java.util.List<CartItem> getCartItems() { return cartItems; }
+-    public void setCartItems(java.util.List<CartItem> cartItems) { this.cartItems = cartItems; }
+-}
+\ No newline at end of file
++
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java
+index 3c77678..cacb681 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/CartItem.java
+@@ -1,52 +1,39 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
++import com.narasena.xmart_grocery_api.enums.CartItemStatus;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.util.UUID;
+-import com.narasena.xmart_grocery_api.enums.CartItemStatus;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "cart_items")
++@Data
+ public class CartItem extends BaseEntity {
+-    
++
+     @Id
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "cart_id", nullable = false)
+     private Cart cart;
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "product_id", nullable = false)
+     private Product product;
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "store_id", nullable = false)
+     private Store store;
+-    
++
+     @Column(nullable = false)
+     private Integer quantity;
+-    
++
+     @Enumerated(EnumType.STRING)
+     @Column(nullable = false)
+     private CartItemStatus status = CartItemStatus.ACTIVE;
+-    
+-    // Getters and setters
+-    public UUID getId() { return id; }
+-    public void setId(UUID id) { this.id = id; }
+-    
+-    public Cart getCart() { return cart; }
+-    public void setCart(Cart cart) { this.cart = cart; }
+-    
+-    public Product getProduct() { return product; }
+-    public void setProduct(Product product) { this.product = product; }
+-    
+-    public Store getStore() { return store; }
+-    public void setStore(Store store) { this.store = store; }
+-    
+-    public Integer getQuantity() { return quantity; }
+-    public void setQuantity(Integer quantity) { this.quantity = quantity; }
+-    
+-    public CartItemStatus getStatus() { return status; }
+-    public void setStatus(CartItemStatus status) { this.status = status; }
+-}
+\ No newline at end of file
++
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
+index 69348ec..8380d96 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Order.java
+@@ -1,144 +1,56 @@
+ package com.narasena.xmart_grocery_api.entity;
++
+ import jakarta.persistence.*;
+-import java.util.UUID;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.math.BigDecimal;
++import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "orders")
++@Data
+ public class Order extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "user_id", nullable = false)
+-  private User user;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "cart_id", nullable = false)
+-  private Cart cart;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "store_id", nullable = false)
+-  private Store store;
+-
+-  @ManyToOne(optional = false)
+-  @JoinColumn(name = "address_id", nullable = false)
+-  private Address address;
+-
+-  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+-  private java.util.List<OrderItem> orderItems;
+-
+-  @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
+-  private java.util.List<OrderStatus> orderStatuses;
+-
+-  @Column(name = "total_amount", nullable = false)
+-  private BigDecimal totalAmount;
+-
+-  @Column(name = "discount_amount")
+-  private BigDecimal discountAmount;
+-  
+-  @Column(name = "shipping_cost", nullable = false)
+-  private BigDecimal shippingCost;
+-
+-  @Column(name = "final_amount", nullable = false)
+-  private BigDecimal finalAmount;
+-
+-  @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+-  private Payment payment;
+-
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-  public User getUser() {
+-    return user;
+-  }
+-
+-  public void setUser(User user) {
+-    this.user = user;
+-  }
+-
+-  public Cart getCart() {
+-    return cart;
+-  }
+-
+-  public void setCart(Cart cart) {
+-    this.cart = cart;
+-  }
+-
+-  public Address getAddress() {
+-    return address;
+-  }
+-
+-  public void setAddress(Address address) {
+-    this.address = address;
+-  }
+-
+-  public java.util.List<OrderItem> getOrderItems() {
+-    return orderItems;
+-  }
+-
+-  public void setOrderItems(java.util.List<OrderItem> orderItems) {
+-    this.orderItems = orderItems;
+-  }
+-  public Store getStore() {
+-    return store;
+-  }
+-
+-  public void setStore(Store store) {
+-    this.store = store;
+-  }
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  public java.util.List<OrderStatus> getOrderStatuses() {
+-    return orderStatuses;
+-  }
+-  public void setOrderStatuses(java.util.List<OrderStatus> orderStatuses) {
+-    this.orderStatuses = orderStatuses;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "user_id", nullable = false)
++    private User user;
+ 
+-  public BigDecimal getTotalAmount() {
+-    return totalAmount;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "cart_id", nullable = false)
++    private Cart cart;
+ 
+-  public void setTotalAmount(BigDecimal totalAmount) {
+-    this.totalAmount = totalAmount;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "store_id", nullable = false)
++    private Store store;
+ 
+-  public BigDecimal getDiscountAmount() {
+-    return discountAmount;
+-  }
++    @ManyToOne(optional = false)
++    @JoinColumn(name = "address_id", nullable = false)
++    private Address address;
+ 
+-  public void setDiscountAmount(BigDecimal discountAmount) {
+-    this.discountAmount = discountAmount;
+-  }
++    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
++    private java.util.List<OrderItem> orderItems;
+ 
+-  public BigDecimal getShippingCost() {
+-    return shippingCost;
+-  }
++    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
++    private java.util.List<OrderStatus> orderStatuses;
+ 
+-  public void setShippingCost(BigDecimal shippingCost) {
+-    this.shippingCost = shippingCost;
+-  }
++    @Column(name = "total_amount", nullable = false)
++    private BigDecimal totalAmount;
+ 
+-  public BigDecimal getFinalAmount() {
+-    return finalAmount;
+-  }
++    @Column(name = "discount_amount")
++    private BigDecimal discountAmount;
+ 
+-  public void setFinalAmount(BigDecimal finalAmount) {
+-    this.finalAmount = finalAmount;
+-  }
++    @Column(name = "shipping_cost", nullable = false)
++    private BigDecimal shippingCost;
+ 
+-  public Payment getPayment() {
+-    return payment;
+-  }
+-  public void setPayment(Payment payment) {
+-    this.payment = payment;
+-  }
++    @Column(name = "final_amount", nullable = false)
++    private BigDecimal finalAmount;
+ 
++    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
++    private Payment payment;
+ 
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java
+index 371baf2..171da75 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderItem.java
+@@ -1,101 +1,43 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
+ import java.math.BigDecimal;
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "order_items")
++@Data
+ public class OrderItem extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  @ManyToOne
+-  @JoinColumn(name = "order_id", nullable = false)
+-  private Order order;
++    @ManyToOne
++    @JoinColumn(name = "order_id", nullable = false)
++    private Order order;
+ 
+-  @ManyToOne
+-  @JoinColumn(name = "product_id", nullable = false)
+-  private Product product;
++    @ManyToOne
++    @JoinColumn(name = "product_id", nullable = false)
++    private Product product;
+ 
+-  @Column(nullable = false)
+-  private Integer quantity;
++    @Column(nullable = false)
++    private Integer quantity;
+ 
+-  @Column(name = "base_price", nullable = false, precision = 10, scale = 2)
+-  private BigDecimal basePrice;
++    @Column(name = "base_price", nullable = false, precision = 10, scale = 2)
++    private BigDecimal basePrice;
+ 
+-  @ManyToOne
+-  @JoinColumn(name = "promotion_product_id")
+-  private PromotionProduct promotionProduct;
++    @ManyToOne
++    @JoinColumn(name = "promotion_product_id")
++    private PromotionProduct promotionProduct;
+ 
+-  @Column(name = "discount_amount", precision = 10, scale = 2)
+-  private BigDecimal discountAmount;
++    @Column(name = "discount_amount", precision = 10, scale = 2)
++    private BigDecimal discountAmount;
+ 
+-  @Column(name = "final_price", nullable = false, precision = 10, scale = 2)
+-  private BigDecimal finalPrice;
++    @Column(name = "final_price", nullable = false, precision = 10, scale = 2)
++    private BigDecimal finalPrice;
+ 
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-
+-  public Order getOrder() {
+-    return order;
+-  }
+-
+-  public void setOrder(Order order) {
+-    this.order = order;
+-  }
+-  public Product getProduct() {
+-    return product;
+-  }
+-
+-  public void setProduct(Product product) {
+-    this.product = product;
+-  }
+-
+-  public Integer getQuantity() {
+-    return quantity;
+-  }
+-
+-  public void setQuantity(Integer quantity) {
+-    this.quantity = quantity;
+-  }
+-
+-  public BigDecimal getBasePrice() {
+-    return basePrice;
+-  }
+-
+-  public void setBasePrice(BigDecimal basePrice) {
+-    this.basePrice = basePrice;
+-  }
+-
+-  public PromotionProduct getPromotionProduct() {
+-    return promotionProduct;
+-  }
+-  public void setPromotionProduct(PromotionProduct promotionProduct) {
+-    this.promotionProduct = promotionProduct;
+-  }
+-
+-  public BigDecimal getDiscountAmount() {
+-    return discountAmount;
+-  }
+-
+-  public void setDiscountAmount(BigDecimal discountAmount) {
+-    this.discountAmount = discountAmount;
+-  }
+-
+-  public BigDecimal getFinalPrice() {
+-    return finalPrice;
+-  }
+-
+-  public void setFinalPrice(BigDecimal finalPrice) {
+-    this.finalPrice = finalPrice;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
+index 5d9ab23..dcb1c1b 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/OrderStatus.java
+@@ -1,48 +1,27 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
++import com.narasena.xmart_grocery_api.enums.OrderStatusType;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
+ import java.util.UUID;
+ 
+-import com.narasena.xmart_grocery_api.enums.OrderStatusType;
+-
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "order_status")
++@Data
+ public class OrderStatus extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "order_id", nullable = false)
+-  private Order order;
+-
+-  @Enumerated(EnumType.STRING)
+-  private OrderStatusType status;
+-  
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-
+-  public Order getOrder() {
+-    return order;
+-  }
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  public void setOrder(Order order) {
+-    this.order = order;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "order_id", nullable = false)
++    private Order order;
+ 
+-  public OrderStatusType getStatus() {
+-    return status;
+-  }
++    @Enumerated(EnumType.STRING)
++    private OrderStatusType status;
+ 
+-  public void setStatus(OrderStatusType status) {
+-    this.status = status;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java
+index dfd7f98..f51e1b7 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Payment.java
+@@ -1,82 +1,38 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
++import com.narasena.xmart_grocery_api.enums.PaymentMethod;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
+ import java.math.BigDecimal;
+ import java.util.UUID;
+ 
+-import com.narasena.xmart_grocery_api.enums.PaymentMethod;
+-
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "payments")
++@Data
+ public class Payment extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @OneToOne
+-  @JoinColumn(name = "order_id", nullable = false)
+-  private Order order;
+-
+-  @Column(name = "amount", nullable = false, precision = 10, scale = 2)
+-  private BigDecimal amount;
+-
+-  @Enumerated(EnumType.STRING)
+-  @Column(nullable = false)
+-  private PaymentMethod method;
+-  
+-
+-  @Column(name = "is_successful", nullable = false)
+-  private boolean isSuccessful = false;
+-
+-  @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
+-  private java.util.List<PaymentStatus> paymentStatuses;
+-
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  public Order getOrder() {
+-    return order;
+-  }
++    @OneToOne
++    @JoinColumn(name = "order_id", nullable = false)
++    private Order order;
+ 
+-  public void setOrder(Order order) {
+-    this.order = order;
+-  }
+-  
+-  public BigDecimal getAmount() {
+-    return amount;
+-  }
++    @Column(name = "amount", nullable = false, precision = 10, scale = 2)
++    private BigDecimal amount;
+ 
+-  public void setAmount(BigDecimal amount) {
+-    this.amount = amount;
+-  }
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private PaymentMethod method;
+ 
+-  public PaymentMethod getMethod() {
+-    return method;
+-  }
+ 
+-  public void setMethod(PaymentMethod method) {
+-    this.method = method;
+-  }
++    @Column(name = "is_successful", nullable = false)
++    private boolean isSuccessful = false;
+ 
+-  public boolean isSuccessful() {
+-    return isSuccessful;
+-  }
+-  public void setSuccessful(boolean successful) {
+-    isSuccessful = successful;
+-  }
++    @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL)
++    private java.util.List<PaymentStatus> paymentStatuses;
+ 
+-  public java.util.List<PaymentStatus> getPaymentStatuses() {
+-    return paymentStatuses;
+-  }
+-  public void setPaymentStatuses(java.util.List<PaymentStatus> paymentStatuses) {
+-    this.paymentStatuses = paymentStatuses;
+-  }
+-  
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+index 8fed006..27e7ea5 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentProof.java
+@@ -1,100 +1,42 @@
+ package com.narasena.xmart_grocery_api.entity;
++
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
+ import java.time.LocalDateTime;
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "payment_proof")
++@Data
+ public class PaymentProof extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @OneToOne
+-  @JoinColumn(name = "payment_id", nullable = false)
+-  private Payment payment;
+-
+-  @Column(columnDefinition = "TEXT", name = "payment_proof_img_url", nullable = false)
+-  private String paymentProofImgUrl;
+-
+-  @Column(columnDefinition = "TEXT", name="resouce_id", nullable = false)
+-  private String resourceId;
+-
+-  @Column(name = "is_verified", nullable = false)
+-  private boolean isVerified = false;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "verified_by", nullable = false)
+-  private User verifiedBy;
+-
+-  @Column(name = "verified_at", nullable = false)
+-  private LocalDateTime verifiedAt;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String notes;
+-
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-
+-  public Payment getPayment() {
+-    return payment;
+-  }
+-
+-  public void setPayment(Payment payment) {
+-    this.payment = payment;
+-  }
+-
+-  public String getPaymentProofImgUrl() {
+-    return paymentProofImgUrl;
+-  }
+-
+-  public void setPaymentProofImgUrl(String paymentProofImgUrl) {
+-    this.paymentProofImgUrl = paymentProofImgUrl;
+-  }
+-
+-  public String getResourceId() {
+-    return resourceId;
+-  }
+-
+-  public void setResourceId(String resourceId) {
+-    this.resourceId = resourceId;
+-  }
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  public boolean isVerified() {
+-    return isVerified;
+-  }
++    @OneToOne
++    @JoinColumn(name = "payment_id", nullable = false)
++    private Payment payment;
+ 
+-  public void setVerified(boolean verified) {
+-    isVerified = verified;
+-  }
++    @Column(columnDefinition = "TEXT", name = "payment_proof_img_url", nullable = false)
++    private String paymentProofImgUrl;
+ 
+-  public User getVerifiedBy() {
+-    return verifiedBy;
+-  }
++    @Column(columnDefinition = "TEXT", name = "resouce_id", nullable = false)
++    private String resourceId;
+ 
+-  public void setVerifiedBy(User verifiedBy) {
+-    this.verifiedBy = verifiedBy;
+-  }
++    @Column(name = "is_verified", nullable = false)
++    private boolean isVerified = false;
+ 
+-  public LocalDateTime getVerifiedAt() {
+-    return verifiedAt;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "verified_by", nullable = false)
++    private User verifiedBy;
+ 
+-  public void setVerifiedAt(LocalDateTime verifiedAt) {
+-    this.verifiedAt = verifiedAt;
+-  }
++    @Column(name = "verified_at", nullable = false)
++    private LocalDateTime verifiedAt;
+ 
+-  public String getNotes() {
+-    return notes;
+-  }
++    @Column(columnDefinition = "TEXT")
++    private String notes;
+ 
+-  public void setNotes(String notes) {
+-    this.notes = notes;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
+index 6efb5f6..4128cfc 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PaymentStatus.java
+@@ -1,47 +1,27 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
++import com.narasena.xmart_grocery_api.enums.PaymentStatusType;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
+ import java.util.UUID;
+ 
+-import com.narasena.xmart_grocery_api.enums.PaymentStatusType;
+-
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "payment_statuses")
++@Data
+ public class PaymentStatus extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "payment_id", nullable = false)
+-  private Payment payment;
+-
+-  @Enumerated(EnumType.STRING)
+-  @Column(nullable = false)
+-  private PaymentStatusType status;
+-
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-
+-  public Payment getPayment() {
+-    return payment;
+-  }
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  public void setPayment(Payment payment) {
+-    this.payment = payment;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "payment_id", nullable = false)
++    private Payment payment;
+ 
+-  public PaymentStatusType getStatus() {
+-    return status;
+-  }
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private PaymentStatusType status;
+ 
+-  public void setStatus(PaymentStatusType status) {
+-    this.status = status;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
+index 0811c89..fc97a13 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Product.java
+@@ -1,25 +1,30 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.math.BigDecimal;
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "products")
++@Data
+ public class Product extends BaseEntity {
+     @Id
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+ 
+-    @Column(columnDefinition = "TEXT",nullable = false, unique = true)
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+     private String name;
+ 
+-    @Column(columnDefinition = "TEXT",nullable = false, unique = true)
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+     private String slug;
+-    
++
+     @Column(columnDefinition = "TEXT")
+     private String description;
+-    
++
+     @Column(nullable = false, precision = 10, scale = 2)
+     private BigDecimal price;
+ 
+@@ -48,61 +53,5 @@ public class Product extends BaseEntity {
+ 
+     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
+     private java.util.List<OrderItem> orderItems;
+-    
+-    // Getters and setters
+-    public UUID getId() { return id; }
+-    public void setId(UUID id) { this.id = id; }
+-    
+-    public String getName() { return name; }
+-    public void setName(String name) {
+-        this.name = name;
+-    }
+-    
+-    public String getSlug() { return slug; }
+-    public void setSlug(String slug) { this.slug = slug; }
+-    
+-    public String getDescription() { return description; }
+-    public void setDescription(String description) { this.description = description; }
+-    
+-    public BigDecimal getPrice() { return price; }
+-
+-    public void setPrice(BigDecimal price) {
+-        this.price = price;
+-    }
+-
+-    public String getSku() { return sku; }
+-
+-    public void setSku(String sku) {
+-        this.sku = sku;
+-    }
+-    
+-    public java.util.List<ProductImage> getProductImages() { return productImages; }
+-    public void setProductImages(java.util.List<ProductImage> productImages) { this.productImages = productImages; }
+-    
+-    public ProductSubCategory getProductSubCategory() { return productSubCategory; }
+-    public void setProductSubCategory(ProductSubCategory productSubCategory) { this.productSubCategory = productSubCategory; }
+-    
+-    public ProductBrand getProductBrand() { return productBrand; }
+-
+-    public void setProductBrand(ProductBrand productBrand) {
+-        this.productBrand = productBrand;
+-    }
+-    
+-    public java.util.List<ProductStock> getProductStocks() { return productStocks; }
+-
+-    public void setProductStocks(java.util.List<ProductStock> productStocks) {
+-        this.productStocks = productStocks;
+-    }
+-    
+-    public java.util.List<CartItem> getCartItems() { return cartItems; }
+-    public void setCartItems(java.util.List<CartItem> cartItems) { this.cartItems = cartItems; }
+-    
+-    public java.util.List<PromotionProduct> getPromotionProducts() { return promotionProducts; }
+-
+-    public void setPromotionProducts(java.util.List<PromotionProduct> promotionProducts) {
+-        this.promotionProducts = promotionProducts;
+-    }
+-    
+-    public java.util.List<OrderItem> getOrderItems() { return orderItems; }
+-    public void setOrderItems(java.util.List<OrderItem> orderItems) { this.orderItems = orderItems; }
+-}
+\ No newline at end of file
++
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+index 6235df1..b05f24c 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductBrand.java
+@@ -1,46 +1,36 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "product_brands")
++@Data
+ public class ProductBrand extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
+-  private java.util.List<Product> products;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String name;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String slug;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String description;
+-
+-  @Column(columnDefinition = "TEXT", name = "img_url")
+-  private String brandImgUrl;  // Generic URL - works with any CDN
+-  
+-  @Column(columnDefinition = "TEXT", name = "resource_id")
+-  private String resourceId; // Provider-specific ID for deletion
+-
+-  // Getters and setters
+-  public UUID getId() { return id; }
+-  public void setId(UUID id) { this.id = id; }
+-  public String getName() { return name; }
+-  public void setName(String name) { this.name = name; }
+-  public String getSlug() { return slug; }
+-  public void setSlug(String slug) { this.slug = slug; }
+-  public String getDescription() { return description; }
+-  public void setDescription(String description) { this.description = description; }
+-  public String getImageUrl() { return brandImgUrl; }
+-  public void setImageUrl(String imageUrl) { this.brandImgUrl = imageUrl; }
+-  public String getResourceId() { return resourceId; }
+-  public void setResourceId(String resourceId) { this.resourceId = resourceId; }
+-  public java.util.List<Product> getProducts() { return products; }
+-  public void setProducts(java.util.List<Product> products) { this.products = products; }
+-}
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++
++    @OneToMany(mappedBy = "productBrand", cascade = CascadeType.ALL)
++    private java.util.List<Product> products;
++
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String name;
++
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String slug;
++
++    @Column(columnDefinition = "TEXT")
++    private String description;
++
++    @Column(columnDefinition = "TEXT", name = "img_url")
++    private String brandImgUrl;  // Generic URL - works with any CDN
++
++    @Column(columnDefinition = "TEXT", name = "resource_id")
++    private String resourceId; // Provider-specific ID for deletion
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java
+index 4660fd4..7fc1d8f 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductCategory.java
+@@ -1,53 +1,29 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "product_categories")
++@Data
+ public class ProductCategory extends BaseEntity {
+-  
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+-  private Integer id;
+-
+-  @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+-  private java.util.List<ProductSubCategory> subCategories;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String name;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String slug;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String description;
+-
+-    // Getters and setters
+-    public Integer getId() { return id; }
+-
+-    public void setId(Integer id) {
+-      this.id = id;
+-    }
+-    
+-    public String getName() { return name; }
+-
+-    public void setName(String name) {
+-      this.name = name;
+-    }
+-    
+-    
+-    public String getSlug() { return slug; }
+-
+-    public void setSlug(String slug) {
+-      this.slug = slug;
+-    }
+-    
+-    public String getDescription() { return description; }
+-
+-    public void setDescription(String description) {
+-      this.description = description;
+-    }
+-    
+-    public java.util.List<ProductSubCategory> getSubCategories() { return subCategories; }
+-    public void setSubCategories(java.util.List<ProductSubCategory> subCategories) { this.subCategories = subCategories; }
+-}
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Integer id;
++
++    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
++    private java.util.List<ProductSubCategory> subCategories;
++
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String name;
++
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String slug;
++
++    @Column(columnDefinition = "TEXT")
++    private String description;
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+index c87ce86..2e8921b 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductImage.java
+@@ -1,66 +1,31 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "product_images")
++@Data
+ public class ProductImage extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  @ManyToOne
+-  @JoinColumn(name = "product_id")
+-  private Product product;
++    @ManyToOne
++    @JoinColumn(name = "product_id")
++    private Product product;
+ 
+-  @Column(columnDefinition = "TEXT", name = "img_url")
+-  private String imgUrl;
++    @Column(columnDefinition = "TEXT", name = "img_url")
++    private String imgUrl;
+ 
+-  @Column(columnDefinition = "TEXT")
+-  private String resourceId; // Provider-specific ID for deletion
++    @Column(columnDefinition = "TEXT")
++    private String resourceId; // Provider-specific ID for deletion
+ 
+-  @Column
+-  private Boolean isMainImg = false;
++    @Column
++    private Boolean isMainImg = false;
+ 
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-
+-  public Product getProduct() {
+-    return product;
+-  }
+-
+-  public void setProduct(Product product) {
+-    this.product = product;
+-  }
+-
+-  public String getImgUrl() {
+-    return imgUrl;
+-  }
+-
+-  public void setImgUrl(String imgUrl) {
+-    this.imgUrl = imgUrl;
+-  }
+-  public String getResourceId() {
+-    return resourceId;
+-  }
+-
+-  public void setResourceId(String resourceId) {
+-    this.resourceId = resourceId;
+-  }
+-
+-  public Boolean getMainImg() {
+-    return isMainImg;
+-  }
+-
+-  public void setMainImg(Boolean mainImg) {
+-    isMainImg = mainImg;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java
+index 761294c..e48c95a 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStock.java
+@@ -1,47 +1,35 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+-import java.util.UUID;
+-
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
++import java.util.UUID;
++
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "product_stocks")
++@Data
+ public class ProductStock extends BaseEntity {
+-  
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-  
+-  // Many-to-One: Many stocks belong to one product
+-  @ManyToOne
+-  @JoinColumn(name = "product_id", nullable = false)
+-  private Product product;
+-  
+-  // Many-to-One: Many stocks belong to one store
+-  @ManyToOne
+-  @JoinColumn(name = "store_id", nullable = false)
+-  private Store store;
+-  
+-  @Column(nullable = false)
+-  private Integer quantity;
+-  
+-  @Column(name = "min_stock_level", nullable = false)
+-  private Integer minStockLevel;
+-  
+-  
+-  // Getters and setters
+-  public java.util.UUID getId() { return id; }
+-  public void setId(java.util.UUID id) { this.id = id; }
+-  
+-  public Product getProduct() { return product; }
+-  public void setProduct(Product product) { this.product = product; }
+-  
+-  public Store getStore() { return store; }
+-  public void setStore(Store store) { this.store = store; }
+-  
+-  public Integer getQuantity() { return quantity; }
+-  public void setQuantity(Integer quantity) { this.quantity = quantity; }
+-  
+-  public Integer getMinStockLevel() { return minStockLevel; }
+-  public void setMinStockLevel(Integer minStockLevel) { this.minStockLevel = minStockLevel; }
+-}
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++
++    // Many-to-One: Many stocks belong to one product
++    @ManyToOne
++    @JoinColumn(name = "product_id", nullable = false)
++    private Product product;
++
++    // Many-to-One: Many stocks belong to one store
++    @ManyToOne
++    @JoinColumn(name = "store_id", nullable = false)
++    private Store store;
++
++    @Column(nullable = false)
++    private Integer quantity;
++
++    @Column(name = "min_stock_level", nullable = false)
++    private Integer minStockLevel;
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
+index 9dbc30c..36c5b52 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductStockLog.java
+@@ -1,77 +1,35 @@
+ package com.narasena.xmart_grocery_api.entity;
+-import java.util.UUID;
+ 
+ import com.narasena.xmart_grocery_api.enums.ProductStockMovementType;
+-
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
++import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "product_stock_history")
++@Data
+ public class ProductStockLog extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-  @ManyToOne
+-  @JoinColumn(name = "product_stock_id", nullable = false)
+-  private ProductStock productStock;
+-
+-  @Column(nullable = false)
+-  private Integer quantity;
+-
+-  @Enumerated(EnumType.STRING)
+-  @Column(nullable = false)
+-  private ProductStockMovementType type;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String description;
+-
+-  @Column(columnDefinition = "TEXT", name="type_reference")
+-  private String typeReference;
+-
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-
+-  public ProductStock getProductStock() {
+-    return productStock;
+-  }
+-
+-  public void setProductStock(ProductStock productStock) {
+-    this.productStock = productStock;
+-  }
+-  public Integer getQuantity() {
+-    return quantity;
+-  }
+-
+-  public void setQuantity(Integer quantity) {
+-    this.quantity = quantity;
+-  }
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++    @ManyToOne
++    @JoinColumn(name = "product_stock_id", nullable = false)
++    private ProductStock productStock;
+ 
+-  public ProductStockMovementType getType() {
+-    return type;
+-  }
++    @Column(nullable = false)
++    private Integer quantity;
+ 
+-  public void setType(ProductStockMovementType type) {
+-    this.type = type;
+-  }
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private ProductStockMovementType type;
+ 
+-  public String getDescription() {
+-    return description;
+-  }
++    @Column(columnDefinition = "TEXT")
++    private String description;
+ 
+-  public void setDescription(String description) {
+-    this.description = description;
+-  }
+-  public String getTypeReference() {
+-    return typeReference;
+-  }
++    @Column(columnDefinition = "TEXT", name = "type_reference")
++    private String typeReference;
+ 
+-  public void setTypeReference(String typeReference) {
+-    this.typeReference = typeReference;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
+index cf07a6d..2b2643a 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/ProductSubCategory.java
+@@ -1,61 +1,33 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "product_sub_categories")
++@Data
+ public class ProductSubCategory extends BaseEntity {
+-  
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+-  private Integer id;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "category_id")
+-  private ProductCategory category;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String name;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String slug;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String description;
+-
+-  @OneToMany(mappedBy = "productSubCategory", cascade = CascadeType.ALL)
+-  private java.util.List<Product> products;
+-
+-    // Getters and setters
+-    public Integer getId() { return id; }
+-
+-    public void setId(Integer id) {
+-      this.id = id;
+-    }
+-    public String getName() { return name; }
+-
+-    public void setName(String name) {
+-      this.name = name;
+-    }
+-    public String getSlug() { return slug; }
+-
+-    public void setSlug(String slug) {
+-      this.slug = slug;
+-    }
+-    public String getDescription() { return description; }
+-
+-    public void setDescription(String description) {
+-      this.description = description;
+-    }
+-    
+-    public ProductCategory getCategory() { return category; }
+-    public void setCategory(ProductCategory category) { this.category = category; }
+-
+-    public java.util.List<Product> getProducts() {
+-        return products;
+-    }
+-
+-    public void setProducts(java.util.List<Product> products) {
+-        this.products = products;
+-    }
+-}
++
++    @Id
++    @GeneratedValue(strategy = GenerationType.IDENTITY)
++    private Integer id;
++
++    @ManyToOne
++    @JoinColumn(name = "product_category_id")
++    private ProductCategory category;
++
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String name;
++
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String slug;
++
++    @Column(columnDefinition = "TEXT")
++    private String description;
++
++    @OneToMany(mappedBy = "productSubCategory", cascade = CascadeType.ALL)
++    private java.util.List<Product> products;
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
+index bd679fb..e10b25f 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Promotion.java
+@@ -1,116 +1,84 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
++import com.narasena.xmart_grocery_api.enums.PromotionStatus;
++import com.narasena.xmart_grocery_api.enums.PromotionType;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.math.BigDecimal;
+ import java.time.LocalDateTime;
+ import java.util.UUID;
+-import com.narasena.xmart_grocery_api.enums.PromotionType;
+-import com.narasena.xmart_grocery_api.enums.PromotionStatus;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "promotions")
++@Data
+ public class Promotion extends BaseEntity {
+-    
++
+     @Id
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+-    
++
+     @Column(columnDefinition = "TEXT", nullable = false)
+     private String name;
+-    
++
+     @Column(columnDefinition = "TEXT")
+     private String description;
+-    
++
+     @Enumerated(EnumType.STRING)
+     @Column(nullable = false)
+     private PromotionType type;
+-    
++
+     @Enumerated(EnumType.STRING)
+     @Column(nullable = false)
+     private PromotionStatus status = PromotionStatus.DRAFT;
+-    
++
+     // Discount values
+     @Column(name = "discount_percentage")
+     private BigDecimal discountPercentage;  // For PERCENTAGE_OFF
+-    
++
+     @Column(name = "discount_amount")
+     private BigDecimal discountAmount;      // For FIXED_AMOUNT_OFF
+-    
++
+     @Column(name = "minimum_purchase")
+     private BigDecimal minimumPurchase;     // Minimum order value
+-    
++
+     @Column(name = "maximum_discount")
+     private BigDecimal maximumDiscount;     // Cap on discount amount
+-    
++
+     // Buy X Get Y fields
+     @Column(name = "buy_quantity")
+     private Integer buyQuantity;            // Buy X
+-    
++
+     @Column(name = "get_quantity")
+     private Integer getQuantity;            // Get Y
+-    
++
+     // Time constraints
+     @Column(name = "start_date", nullable = false)
+     private LocalDateTime startDate;
+-    
++
+     @Column(name = "end_date")
+     private LocalDateTime endDate;
+-    
++
+     // Usage limits
+     @Column(name = "usage_limit")
+     private Integer usageLimit;             // Total uses allowed
+-    
++
+     @Column(name = "usage_count")
+     private Integer usageCount = 0;         // Current usage
+-    
++
+     @Column(name = "per_user_limit")
+     private Integer perUserLimit;           // Uses per customer
+-    
++
+     // Promo code
+     @Column(columnDefinition = "TEXT", name = "promo_code", unique = true)
+     private String promoCode;               // Optional coupon code
+-    
+-   @OneToMany(mappedBy = "promotion")
+-   private java.util.List<PromotionProduct> applicableProducts;
+-    
+-   @OneToMany(mappedBy = "promotion")
+-   private java.util.List<PromotionStore> applicableStores;
+-
+-    
+-    // Getters and setters
+-    public UUID getId() { return id; }
+-    public void setId(UUID id) { this.id = id; }
+-    
+-    public String getName() { return name; }
+-    public void setName(String name) { this.name = name; }
+-    
+-    public String getDescription() { return description; }
+-    public void setDescription(String description) { this.description = description; }
+-    
+-    public PromotionType getType() { return type; }
+-    public void setType(PromotionType type) { this.type = type; }
+-    
+-    public PromotionStatus getStatus() { return status; }
+-    public void setStatus(PromotionStatus status) { this.status = status; }
+-    
+-    public BigDecimal getDiscountPercentage() { return discountPercentage; }
+-    public void setDiscountPercentage(BigDecimal discountPercentage) { this.discountPercentage = discountPercentage; }
+-    
+-    public BigDecimal getDiscountAmount() { return discountAmount; }
+-    public void setDiscountAmount(BigDecimal discountAmount) { this.discountAmount = discountAmount; }
+-    
+-    public LocalDateTime getStartDate() { return startDate; }
+-    public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
+-    
+-    public LocalDateTime getEndDate() { return endDate; }
+-    public void setEndDate(LocalDateTime endDate) { this.endDate = endDate; }
+-    
+-    public String getPromoCode() { return promoCode; }
+-    public void setPromoCode(String promoCode) { this.promoCode = promoCode; }
+-    
+-    public java.util.List<PromotionProduct> getApplicableProducts() { return applicableProducts; }
+-    public void setApplicableProducts(java.util.List<PromotionProduct> applicableProducts) { this.applicableProducts = applicableProducts; }
+-    
+-    public java.util.List<PromotionStore> getApplicableStores() { return applicableStores; }
+-    public void setApplicableStores(java.util.List<PromotionStore> applicableStores) { this.applicableStores = applicableStores; }
+-}
++
++    @OneToMany(mappedBy = "promotion")
++    private java.util.List<PromotionProduct> applicableProducts;
++
++    @OneToMany(mappedBy = "promotion")
++    private java.util.List<PromotionStore> applicableStores;
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java
+index 2f5a340..57f4fb2 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionProduct.java
+@@ -1,40 +1,30 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "promotion_products")
++@Data
+ public class PromotionProduct extends BaseEntity {
+-    
++
+     @Id
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "promotion_id", nullable = false)
+     private Promotion promotion;
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "product_id", nullable = false)
+     private Product product;
+ 
+     @OneToMany(mappedBy = "promotionProduct", cascade = CascadeType.ALL)
+     private java.util.List<OrderItem> orderItems;
+-    
+-    // Getters and setters
+-    public UUID getId() { return id; }
+-    public void setId(UUID id) { this.id = id; }
+-    
+-    public Promotion getPromotion() { return promotion; }
+-    public void setPromotion(Promotion promotion) { this.promotion = promotion; }
+-    
+-    public Product getProduct() { return product; }
+-
+-    public void setProduct(Product product) {
+-        this.product = product;
+-    }
+-
+-    public java.util.List<OrderItem> getOrderItems() { return orderItems; }
+-    public void setOrderItems(java.util.List<OrderItem> orderItems) { this.orderItems = orderItems; }
+-}
+\ No newline at end of file
++
++}
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java
+index fa9cd7d..97cf961 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/PromotionStore.java
+@@ -1,45 +1,26 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+-import java.util.UUID;
+-
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
++import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "promotion_stores")
++@Data
+ public class PromotionStore extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "promotion_id", nullable = false)
+-  private Promotion promotion;
+-
+-  @ManyToOne
+-  @JoinColumn(name = "store_id", nullable = false)
+-  private Store store;
+-
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  public Promotion getPromotion() {
+-    return promotion;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "promotion_id", nullable = false)
++    private Promotion promotion;
+ 
+-  public void setPromotion(Promotion promotion) {
+-    this.promotion = promotion;
+-  }
+-  public Store getStore() {
+-    return store;
+-  }
++    @ManyToOne
++    @JoinColumn(name = "store_id", nullable = false)
++    private Store store;
+ 
+-  public void setStore(Store store) {
+-    this.store = store;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+index 33d8ae3..d5278f5 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Store.java
+@@ -1,156 +1,59 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
+ 
+ import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "stores")
++@Data
+ public class Store extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String name;
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String slug;
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String name;
+ 
+-  @Column(columnDefinition = "TEXT")
+-  private String description;
+-
+-  @OneToOne
+-  @JoinColumn(name = "store_manager_id")
+-  private User storeManager;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String storeImgUrl;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String resourceId;
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String slug;
+ 
+-  @OneToOne
+-  @JoinColumn(name = "store_address_id")
+-  private Address storeAddress;
++    @Column(columnDefinition = "TEXT")
++    private String description;
+ 
+-  @Column(columnDefinition = "TEXT")
+-  private String latitude;
++    @OneToOne
++    @JoinColumn(name = "store_manager_id")
++    private User storeManager;
+ 
+-  @Column(columnDefinition = "TEXT")
+-  private String longitude;
+-
+-  @Column(columnDefinition = "TEXT", unique = true)
+-  private String phoneNumber;
+-
+-  @Column(columnDefinition = "TEXT", unique = true)
+-  private String email;
++    @Column(columnDefinition = "TEXT")
++    private String storeImgUrl;
+ 
+-  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+-  private java.util.List<ProductStock> productStocks;
++    @Column(columnDefinition = "TEXT")
++    private String resourceId;
+ 
+-  @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
+-  private java.util.List<Order> orders;
+-
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-  public String getName() {
+-    return name;
+-  }
+-
+-  public void setName(String name) {
+-    this.name = name;
+-  }
+-
+-  public String getSlug() {
+-    return slug;
+-  }
+-
+-  public void setSlug(String slug) {
+-    this.slug = slug;
+-  }
+-
+-  public String getDescription() {
+-    return description;
+-  }
+-
+-  public void setDescription(String description) {
+-    this.description = description;
+-  } 
+-  public String getStoreImgUrl() {
+-    return storeImgUrl;
+-  }
+-
+-  public void setStoreImgUrl(String storeImgUrl) {
+-    this.storeImgUrl = storeImgUrl;
+-  }
+-  public String getResourceId() {
+-    return resourceId;
+-  }
+-
+-  public void setResourceId(String resourceId) {
+-    this.resourceId = resourceId;
+-  }
+-  public Address getStoreAddress() {
+-    return storeAddress;
+-  }
+-
+-  public void setStoreAddress(Address storeAddress) {
+-    this.storeAddress = storeAddress;
+-  }
+-
+-  public String getLatitude() {
+-    return latitude;
+-  }
+-
+-  public void setLatitude(String latitude) {
+-    this.latitude = latitude;
+-  }
+-
+-  public String getLongitude() {
+-    return longitude;
+-  }
+-
+-  public void setLongitude(String longitude) {
+-    this.longitude = longitude;
+-  }
+-
+-  public String getPhoneNumber() {
+-    return phoneNumber;
+-  }
+-
+-  public void setPhoneNumber(String phoneNumber) {
+-    this.phoneNumber = phoneNumber;
+-  }
+-
+-  public String getEmail() {
+-    return email;
+-  }
+-
+-  public void setEmail(String email) {
+-    this.email = email;
+-  }
+-
+-  public java.util.List<ProductStock> getProductStocks() {
+-    return productStocks;
+-  }
+-
+-  public void setProductStocks(java.util.List<ProductStock> productStocks) {
+-    this.productStocks = productStocks;
+-  }
+-
+-  public java.util.List<Order> getOrders() {
+-    return orders;
+-  }
+-
+-  public void setOrders(java.util.List<Order> orders) {
+-    this.orders = orders;
+-  }
+-  
+-}
++    @OneToOne
++    @JoinColumn(name = "store_address_id")
++    private Address storeAddress;
++
++    @Column(columnDefinition = "TEXT")
++    private String latitude;
++
++    @Column(columnDefinition = "TEXT")
++    private String longitude;
++
++    @Column(columnDefinition = "TEXT", unique = true)
++    private String phoneNumber;
++
++    @Column(columnDefinition = "TEXT", unique = true)
++    private String email;
++
++    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
++    private java.util.List<ProductStock> productStocks;
++
++    @OneToMany(mappedBy = "store", cascade = CascadeType.ALL)
++    private java.util.List<Order> orders;
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+index 318defd..4394bf7 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/User.java
+@@ -1,169 +1,67 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
+-import java.util.UUID;
+ import com.narasena.xmart_grocery_api.enums.Gender;
+ import com.narasena.xmart_grocery_api.enums.UserRole;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
++import java.util.UUID;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "users")
++@Data
+ public class User extends BaseEntity {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false, unique = true)
+-  private String email;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false)
+-  private String password;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false)
+-  private String phoneNumber;
+-
+-  @Column(nullable = false)
+-  private Boolean isVerified = false;
+-
+-  @Column(columnDefinition = "TEXT", nullable = false)
+-  private String firstName;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String lastName;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String dateOfBirth;
+-
+-  @Enumerated(EnumType.STRING)
+-  @Column
+-  private Gender gender;
+-
+-  @Enumerated(EnumType.STRING)
+-  @Column(nullable = false)
+-  private UserRole role = UserRole.CUSTOMER;
+-
+-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+-  private java.util.List<Address> userAddresses;  
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String userImgUrl;
+-
+-  @Column(columnDefinition = "TEXT")
+-  private String resourceId;
+-
+-  @Column(columnDefinition = "TEXT", name = "referral_code")
+-  private String referralCode;
+-
+-  @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+-  private Cart cart;
+-
+-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+-  private java.util.List<Order> orders;
+-
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-  public String getEmail() {
+-    return email;
+-  }
+-  public void setEmail(String email) {
+-    this.email = email;
+-  }
+-  public String getPassword() {
+-    return password;
+-  }
+-  public void setPassword(String password) {
+-    this.password = password;
+-  }
+-  public String getPhoneNumber() {
+-    return phoneNumber;
+-  }
+-  public void setPhoneNumber(String phoneNumber) {
+-    this.phoneNumber = phoneNumber;
+-  }
+-  public Boolean getIsVerified() {
+-    return isVerified;
+-  }
+-  public void setIsVerified(Boolean isVerified) {
+-    this.isVerified = isVerified;
+-  }
+-  public String getFirstName() {
+-    return firstName;
+-  }
+-  public void setFirstName(String firstName) {
+-    this.firstName = firstName;
+-  }
+-  public String getLastName() {
+-    return lastName;
+-  }
+-  public void setLastName(String lastName) {
+-    this.lastName = lastName;
+-  }
+-  public String getDateOfBirth() {
+-    return dateOfBirth;
+-  }
+-  public void setDateOfBirth(String dateOfBirth) {
+-    this.dateOfBirth = dateOfBirth;
+-  }
+-  public Gender getGender() {
+-    return gender;
+-  }
+-  public void setGender(Gender gender) {
+-    this.gender = gender;
+-  }
+-  public String getUserImgUrl() {
+-    return userImgUrl;
+-  }
+-  public void setUserImgUrl(String userImgUrl) {
+-    this.userImgUrl = userImgUrl;
+-  }
+-  public String getResourceId() {
+-    return resourceId;
+-  }
+-  public void setResourceId(String resourceId) {
+-    this.resourceId = resourceId;
+-  }
+-
+-    public UserRole getRole() {
+-        return role;
+-    }
+-
+-    public void setRole(UserRole role) {
+-        this.role = role;
+-    }
+-
+-    public java.util.List<Address> getUserAddresses() {
+-        return userAddresses;
+-    }
+-
+-    public void setUserAddresses(java.util.List<Address> userAddresses) {
+-        this.userAddresses = userAddresses;
+-    }
+-
+-    public String getReferralCode() {
+-        return referralCode;
+-    }
+-
+-    public void setReferralCode(String referralCode) {
+-        this.referralCode = referralCode;
+-    }
+-
+-    public Cart getCart() {
+-        return cart;
+-    }
+-
+-    public void setCart(Cart cart) {
+-        this.cart = cart;
+-    }
+-
+-    public java.util.List<Order> getOrders() {
+-        return orders;
+-    }
+-
+-    public void setOrders(java.util.List<Order> orders) {
+-        this.orders = orders;
+-    }
+-}
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
++
++    @Column(columnDefinition = "TEXT", nullable = false, unique = true)
++    private String email;
++
++    @Column(columnDefinition = "TEXT", nullable = false)
++    private String password;
++
++    @Column(columnDefinition = "TEXT", nullable = false)
++    private String phoneNumber;
++
++    @Column(nullable = false)
++    private Boolean isVerified = false;
++
++    @Column(columnDefinition = "TEXT", nullable = false)
++    private String firstName;
++
++    @Column(columnDefinition = "TEXT")
++    private String lastName;
++
++    @Column(columnDefinition = "TEXT")
++    private String dateOfBirth;
++
++    @Enumerated(EnumType.STRING)
++    @Column
++    private Gender gender;
++
++    @Enumerated(EnumType.STRING)
++    @Column(nullable = false)
++    private UserRole role = UserRole.CUSTOMER;
++
++    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
++    private java.util.List<Address> userAddresses;
++
++    @Column(columnDefinition = "TEXT")
++    private String userImgUrl;
++
++    @Column(columnDefinition = "TEXT")
++    private String resourceId;
++
++    @Column(columnDefinition = "TEXT", name = "referral_code")
++    private String referralCode;
++
++    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
++    private Cart cart;
++
++    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
++    private java.util.List<Order> orders;
++
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java
+index a60122c..eebe569 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/UserReferral.java
+@@ -1,40 +1,24 @@
+ package com.narasena.xmart_grocery_api.entity;
+-import java.util.UUID;
+ 
+ import jakarta.persistence.*;
++import lombok.Data;
++
++import java.util.UUID;
+ 
+ @Entity
+ @Table(name = "user_referral")
++@Data
+ public class UserReferral {
+-  @Id
+-  @GeneratedValue(strategy = GenerationType.UUID)
+-  private UUID id;
++    @Id
++    @GeneratedValue(strategy = GenerationType.UUID)
++    private UUID id;
+ 
+-  @ManyToOne
+-  @JoinColumn(name = "referrer_id")
+-  private User referrer;
++    @ManyToOne
++    @JoinColumn(name = "referrer_id")
++    private User referrer;
+ 
+-  @ManyToOne
+-  @JoinColumn(name = "referee_id", unique = true)
+-  private User referee;
++    @ManyToOne
++    @JoinColumn(name = "referee_id", unique = true)
++    private User referee;
+ 
+-  // Getters and setters
+-  public UUID getId() {
+-    return id;
+-  }
+-  public void setId(UUID id) {
+-    this.id = id;
+-  }
+-  public User getReferrer() {
+-    return referrer;
+-  }
+-  public void setReferrer(User referrer) {
+-    this.referrer = referrer;
+-  }
+-  public User getReferee() {
+-    return referee;
+-  }
+-  public void setReferee(User referee) {
+-    this.referee = referee;
+-  }
+-}
++}
+\ No newline at end of file
+diff --git a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+index e452d25..6d3d67e 100644
+--- a/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
++++ b/api/src/main/java/com/narasena/xmart_grocery_api/entity/Voucher.java
+@@ -1,94 +1,61 @@
+ package com.narasena.xmart_grocery_api.entity;
+ 
++import com.narasena.xmart_grocery_api.enums.VoucherStatus;
+ import jakarta.persistence.*;
++import lombok.Data;
++import lombok.EqualsAndHashCode;
++
+ import java.math.BigDecimal;
+ import java.time.LocalDateTime;
+ import java.util.UUID;
+-import com.narasena.xmart_grocery_api.enums.VoucherStatus;
+ 
++@EqualsAndHashCode(callSuper = true)
+ @Entity
+ @Table(name = "vouchers")
++@Data
+ public class Voucher extends BaseEntity {
+-    
++
+     @Id
+     @GeneratedValue(strategy = GenerationType.UUID)
+     private UUID id;
+-    
++
+     @Column(columnDefinition = "TEXT", name = "voucher_code", nullable = false, unique = true)
+     private String voucherCode;             // Unique code like "REF-ABC123"
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "user_id", nullable = false)
+     private User user;                      // Owner of voucher
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "promotion_id", nullable = false)
+     private Promotion promotion;            // Source promotion
+-    
++
+     @Enumerated(EnumType.STRING)
+     @Column(nullable = false)
+     private VoucherStatus status = VoucherStatus.ISSUED;
+-    
++
+     // Voucher-specific values (can override promotion defaults)
+     @Column(name = "discount_amount")
+     private BigDecimal discountAmount;
+-    
++
+     @Column(name = "minimum_purchase")
+     private BigDecimal minimumPurchase;
+-    
++
+     @Column(name = "expires_at")
+     private LocalDateTime expiresAt;
+-    
++
+     @Column(name = "used_at")
+     private LocalDateTime usedAt;
+-    
++
+     @ManyToOne
+     @JoinColumn(name = "used_in_order_id")
+     private Order usedInOrder;              // Which order used this voucher
+-    
++
+     // Source tracking
+     @Column(columnDefinition = "TEXT", name = "source_type")
+     private String sourceType;              // "REFERRAL", "BIRTHDAY", "LOYALTY"
+-    
++
+     @Column(name = "source_reference_id")
+     private UUID sourceReferenceId;         // ID of referral, etc.
+-    
+-    // Getters and setters
+-    public UUID getId() { return id; }
+-    public void setId(UUID id) { this.id = id; }
+-    
+-    public String getVoucherCode() { return voucherCode; }
+-    public void setVoucherCode(String voucherCode) { this.voucherCode = voucherCode; }
+-    
+-    public User getUser() { return user; }
+-    public void setUser(User user) { this.user = user; }
+-    
+-    public Promotion getPromotion() { return promotion; }
+-    public void setPromotion(Promotion promotion) { this.promotion = promotion; }
+-    
+-    public VoucherStatus getStatus() { return status; }
+-    public void setStatus(VoucherStatus status) { this.status = status; }
+-    
+-    public BigDecimal getDiscountAmount() { return discountAmount; }
+-    public void setDiscountAmount(BigDecimal discountAmount) { this.discountAmount = discountAmount; }
+-    
+-    public LocalDateTime getExpiresAt() { return expiresAt; }
+-    public void setExpiresAt(LocalDateTime expiresAt) { this.expiresAt = expiresAt; }
+-    
+-    public LocalDateTime getUsedAt() { return usedAt; }
+-    public void setUsedAt(LocalDateTime usedAt) { this.usedAt = usedAt; }
+-    
+-    public Order getUsedInOrder() { return usedInOrder; }
+-    public void setUsedInOrder(Order usedInOrder) { this.usedInOrder = usedInOrder; }
+-    
+-    public String getSourceType() { return sourceType; }
+-    public void setSourceType(String sourceType) { this.sourceType = sourceType; }
+-
+-    public UUID getSourceReferenceId() {
+-        return sourceReferenceId;
+-    }
+-
+-    public void setSourceReferenceId(UUID sourceReferenceId) {
+-        this.sourceReferenceId = sourceReferenceId;
+-    }
+-}
+\ No newline at end of file
++
++}
+-- 
+2.43.0
+

@@ -30,4 +30,14 @@ public class ProductSubCategory extends BaseEntity {
     @OneToMany(mappedBy = "productSubCategory", cascade = CascadeType.ALL)
     private java.util.List<Product> products;
 
+    @PrePersist
+    public void generateSlug() {
+        this.slug = generateSlugFromNameandId(this.name, this.id);
+    }
+
+    private String generateSlugFromNameandId(String name, Integer id) {
+        String baseSlug = name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-|-$", "");
+        return id != null ? baseSlug + "-" + id : baseSlug;
+    }
+
 }
