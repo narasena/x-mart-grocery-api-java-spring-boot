@@ -1,8 +1,16 @@
 package com.narasena.xmart_grocery_api.entity;
 
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -14,8 +22,9 @@ public class ProductCategory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private java.util.List<ProductSubCategory> subCategories;
+    @OneToMany(mappedBy = "productCategoryId", cascade = CascadeType.ALL)
+    @JsonManagedReference
+    private List<ProductSubCategory> subCategories;
 
     @Column(columnDefinition = "TEXT", nullable = false, unique = true)
     private String name;

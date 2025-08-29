@@ -45,7 +45,7 @@ public class DataSeeder {
           if(productSubCategoryRepository.findByName(cat[i]).isEmpty()) {
             ProductSubCategory subCategory = new ProductSubCategory();
             subCategory.setName(cat[i]);
-            subCategory.setCategory(productCategory);
+            subCategory.setProductCategoryId(productCategory);
             subCategory.generateSlug();
             productSubCategoryRepository.save(subCategory);
           }

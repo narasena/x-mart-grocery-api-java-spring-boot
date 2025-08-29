@@ -1,8 +1,13 @@
 package com.narasena.xmart_grocery_api.entity;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 
 @EqualsAndHashCode(callSuper = true)
 @Entity
@@ -16,7 +21,7 @@ public class ProductSubCategory extends BaseEntity {
 
     @ManyToOne
     @JoinColumn(name = "product_category_id")
-    private ProductCategory category;
+    private ProductCategory productCategoryId;
 
     @Column(columnDefinition = "TEXT", nullable = false, unique = true)
     private String name;

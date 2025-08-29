@@ -1,11 +1,15 @@
 package com.narasena.xmart_grocery_api.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.narasena.xmart_grocery_api.entity.ProductCategory;
 import com.narasena.xmart_grocery_api.service.ProductCategoryService;
+
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -22,6 +26,11 @@ public class ProductCategoryController {
       //TODO: process POST request
       
       return productCategoryService.creatProductCategory(productCategory).getName();
+  }
+
+  @GetMapping("/all")
+  public List<ProductCategory> getAllProductCategories() {
+      return productCategoryService.getAllProductCategories();
   }
   
 }
